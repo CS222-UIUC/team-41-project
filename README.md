@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Name That Tune
 
-## Getting Started
+## Overview
+A web-based multiplayer "Name That Tune" game where players compete asynchronously to guess song titles as quickly as possible. The game includes interactive 3D visuals powered by Three.js, a cumulative leaderboard, and the ability to create and share custom playlists.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Current Tasks and Execution Status
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Week 1
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Github Repository Setup
+    - Add README.md - Done 
+    - Establish Directory Structure with templated code for frontend and backend - In Progress
+- Basic exploration of UI library Three.js and building design components for frontend implementation
+    - In progress
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Anticipated Features
+- Start or join a game based on a selected genre, artist, created playlist, or daily challenge.
+- Guess song titles from audio snippets, with points decreasing the longer the audio plays.
+- View a cumulative leaderboard that tracks overall performance.
+- Create and share custom playlists for game sessions.
+- Invite friends to play the same challenge via shareable links.
+- Adjust game difficulty and round settings.
+- View past game statistics and achievements.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Current Tech Stack
+### **Frontend**
+- **Framework:** React.js with TypeScript
+- **Styling:** TailwindCSS
+- **3D Visuals:** Three.js
+- **Testing:** Jest, React Testing Library
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### **Backend**
+- **Framework:** Node.js with Express
+- **Authentication:** JSON Web Tokens (JWT)
+- **API Integration:** SoundCloud API
+- **Testing:** Jest, Supertest
 
-## Deploy on Vercel
+### **Database**
+- **Database:** MongoDB
+- **ORM/ODM:** Mongoose
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Team Number:** 41  
+**Team Members:**  
+- Kaavya Mahajan (kaavyam2)  
+- Zia Lu (zixuan43)  
+- Sophie Lin (sophiel4)  
+- Sriram Koritala (sriramk3)  
+
+---
