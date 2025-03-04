@@ -12,7 +12,7 @@ A web-based multiplayer "Name That Tune" game where players compete asynchronous
 
 - Github Repository Setup
   - Add README.md - Done
-  - Establish Directory Structure with templated code for frontend and backend - In Progress
+  - Establish Directory Structure with templated code for frontend and backend - Done
 - Basic exploration of UI library Three.js and building design components for frontend implementation
   - In progress
 
