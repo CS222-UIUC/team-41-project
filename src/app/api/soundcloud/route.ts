@@ -1,17 +1,14 @@
-import { NextResponse } from 'next/server';
-import { soundCloudClient } from '@/lib/soundcloud/client';
+import { NextResponse } from "next/server";
+import { soundCloudClient } from "@/lib/soundcloud/client";
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get('q');
-    const trackId = searchParams.get('trackId');
+    const query = searchParams.get("q");
+    const trackId = searchParams.get("trackId");
 
     if (!query && !trackId) {
-      return NextResponse.json(
-        { error: 'Missing query or trackId parameter' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing query or trackId parameter" }, { status: 400 });
     }
 
     if (trackId) {
@@ -21,12 +18,8 @@ export async function GET(request: Request) {
 
     const searchResults = await soundCloudClient.search(query!);
     return NextResponse.json(searchResults);
-
   } catch (error) {
-    console.error('SoundCloud API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch from SoundCloud API' },
-      { status: 500 }
-    );
+    console.error("SoundCloud API error:", error);
+    return NextResponse.json({ error: "Failed to fetch from SoundCloud API" }, { status: 500 });
   }
-} 
+}

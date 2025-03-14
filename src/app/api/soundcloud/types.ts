@@ -13,4 +13,4 @@ export interface SoundCloudTrack {
 
 export interface SearchResponse {
   collection: SoundCloudTrack[];
-} 
+}
