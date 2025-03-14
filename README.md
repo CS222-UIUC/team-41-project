@@ -20,7 +20,7 @@ A web-based multiplayer "Name That Tune" game where players compete asynchronous
 
 ## Anticipated Features
 
-- Start or join a game based on a selected genre, artist, created playlist, or daily challenge.
+- Start or join a game based on a selected genre, artist, created playlist.
 - Guess song titles from audio snippets, with points decreasing the longer the audio plays.
 - View a cumulative leaderboard that tracks overall performance.
 - Create and share custom playlists for game sessions.

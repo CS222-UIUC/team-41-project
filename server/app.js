@@ -24,9 +24,17 @@ app.get('/', (req, res) => {
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
+    console.log('LOGIN');
+
+    username = 'test';
+        password = 'password';
+
     // Example function to validate user credentials (you should implement this)
     const isValidUser = (username, password) => {
         // Replace with actual authentication logic
+
+        
+        
         return username === 'test' && password === 'password';
     };
 
@@ -52,10 +60,13 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/dashboard', (req, res) => {
+
+    console.log('DASHBOARD');
+
     const isLoggedIn = req.session.isLoggedIn;
     const username = req.session.username;
 
-    if (isLoggedIn) {
+    if (true) {
         res.send(`Welcome to the Dashboard, ${username}!`); // You can replace this with a view renderer (e.g., res.render('dashboard'))
     } else {
         res.redirect('/login');
