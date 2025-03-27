@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const session = require('express-session');
 const bodyParser = require('body-parser'); // For parsing request bodies
 
@@ -76,5 +76,5 @@ app.get('/dashboard', (req, res) => {
 // Start the server
 const port = 3000;
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });
