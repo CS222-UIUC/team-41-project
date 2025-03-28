@@ -12,7 +12,7 @@ interface NewData {
   gamesWon?: Integer
 }
 
-export async function UpdateStat(id: number, newdata: NewData) {
+export async function UpdateStat(id: string, newdata: NewData) {
     const updateData: NewData = {};
     if (newdata.totalPoints !== undefined) {
         updateData.totalPoints = newdata.totalPoints;
@@ -35,7 +35,7 @@ export async function UpdateStat(id: number, newdata: NewData) {
     });
 }
 
-export async function UpdateName(newName: string, id: number) {
+export async function UpdateName(newName: string, id: string) {
     await prisma.user.update({
         where: { id },
         data: {
@@ -44,7 +44,7 @@ export async function UpdateName(newName: string, id: number) {
     });
 }
 
-export async function GetUser(id: number) {
+export async function GetUser(id: string) {
     const post = await prisma.user.findUnique({
         where: { id }
     });
