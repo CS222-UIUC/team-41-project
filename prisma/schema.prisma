@@ -11,4 +11,16 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id String @id @default(uuid())
+  userName String @default("New User") @map("user_name")
+  totalPoints Int @default(0) @map("total_points")
+  averageTime Float @default(0.0) @map("average_time")
+  totalGames Int @default(0) @map("total_games")
+  correctGuesses Int @default(0) @map("correct_guesses")
+  gamesWon Int @default(0) @map("games_won")
+  // to implement: friends, last logged on
 }
