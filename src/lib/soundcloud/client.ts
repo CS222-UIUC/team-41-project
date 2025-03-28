@@ -10,18 +10,24 @@ class SoundCloudClient {
   }
 
   async search(query: string) {
-    const params = new URLSearchParams({
-      client_id: this.clientId,
-      q: query,
-    });
+    try {
+      const response = await fetch(`/api/soundcloud/search?q=${encodeURIComponent(query)}`);
 
-    const response = await fetch(`${this.baseUrl}/tracks?${params.toString()}`);
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.status}`);
+      }
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch from SoundCloud API");
+      const data = await response.json();
+
+      if (!data.tracks) {
+        return [];
+      }
+
+      return data.tracks;
+    } catch (error) {
+      console.error("SoundCloud search error:", error);
+      throw error;
     }
-
-    return response.json();
   }
 
   async getTrack(trackId: string) {

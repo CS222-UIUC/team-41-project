@@ -10,17 +10,23 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.7",
     "@prisma/client": "^6.4.1",
+    "@radix-ui/react-slot": "^1.1.2",
     "@react-three/drei": "^10.0.3",
     "@react-three/fiber": "^9.0.4",
     "@trpc/client": "^10.45.2",
     "@trpc/server": "^10.45.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "framer-motion": "^11.0.5",
     "framer-motion-3d": "^12.0.0",
     "next": "15.2.0",
     "next-auth": "^4.24.11",
+    "pretty-quick": "^4.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.0.2",
     "zod": "^3.24.2"
   },
   "devDependencies": {
