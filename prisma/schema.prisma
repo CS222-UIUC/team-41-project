@@ -24,3 +24,12 @@ model User {
   gamesWon Int @default(0) @map("games_won")
   // to implement: friends, last logged on
 }
+
+model Playlist {
+  id       String        @id @default(cuid())
+  name     String
+  userId   String
+  tracks   SoundCloudTrack[]
+
+  user     User          @relation(fields: [userId], references: [id])
+}
