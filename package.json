@@ -6,6 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
+    "server": "server.js",
     "lint": "next lint",
     "format": "prettier --write .",
     "build-db": "npx tsx src/scripts/build-db.ts"
@@ -25,7 +26,6 @@
     "cmdk": "^1.1.1",
     "dotenv": "^16.4.7",
     "framer-motion": "^11.0.5",
-    "framer-motion-3d": "^12.0.0",
     "next": "15.2.0",
     "next-auth": "^4.24.11",
     "node-fetch": "^3.3.2",
