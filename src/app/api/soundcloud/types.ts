@@ -4,10 +4,6 @@ export interface SoundCloudTrack {
   permalink_url: string;
   artwork_url: string | null;
   duration: number;
-  user: {
-    username: string;
-    avatar_url: string | null;
-  };
   stream_url: string;
 }
 

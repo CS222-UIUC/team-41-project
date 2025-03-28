@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { SongCard } from "@/components/SongCard";
-import { trackDatabase, TrackOption } from "@/lib/soundcloud/trackDatabase";
+import { trackDatabase } from "@/lib/soundcloud/trackDatabase";
+import { SoundCloudTrack } from "../api/soundcloud/types";
+import { Dropdown } from "@/components/ui/Dropdown";
 
 export default function DevPage() {
-  const [selectedTrack, setSelectedTrack] = useState<TrackOption | null>(null);
+  const [selectedTrack, setSelectedTrack] = useState<SoundCloudTrack | null>(null);
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
@@ -14,22 +16,32 @@ export default function DevPage() {
     setSelectedTrack(randomTrack);
   }, []);
 
+  const handleTrackSelect = (option: { id: number; title: string }) => {
+    const selectedTrack = trackDatabase.find((track) => track.id === option.id);
+    if (selectedTrack) {
+      setSelectedTrack(selectedTrack);
+    }
+  };
+
   if (error) {
     return <div className="p-4 text-red-600">{error}</div>;
-  }
-
-  if (!selectedTrack) {
-    return <div className="p-4">Loading...</div>;
   }
 
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Name that Tune!</h1>
-      <SongCard
-        trackUrl={selectedTrack.permalink_url}
-        trackTitle={selectedTrack.title}
-        correctTrackId={selectedTrack.id}
-      />
+      <div className="mb-6">
+        <Dropdown
+          options={trackDatabase.map((track) => ({ id: track.id, title: track.title }))}
+          onSelect={handleTrackSelect}
+          placeholder="Select a song..."
+        />
+      </div>
+      {selectedTrack ? (
+        <SongCard trackUrl={selectedTrack.permalink_url} trackTitle={selectedTrack.title} />
+      ) : (
+        <div className="p-4">Select a song from the dropdown above</div>
+      )}
     </div>
   );
 }
