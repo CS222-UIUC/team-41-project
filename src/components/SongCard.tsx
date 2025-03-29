@@ -4,27 +4,22 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Play, Pause, Plus } from "@phosphor-icons/react";
-import { trackDatabase, TrackOption } from "@/lib/soundcloud/trackDatabase";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/Command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
 
 interface SongCardProps {
   trackUrl: string;
   trackTitle: string;
-  correctTrackId: number;
 }
 
-export function SongCard({ trackUrl, trackTitle, correctTrackId }: SongCardProps) {
+export function SongCard({ trackUrl, trackTitle }: SongCardProps) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [selectedTrack, setSelectedTrack] = useState<TrackOption | null>(null);
+  const [guess, setGuess] = useState("");
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [showSolution, setShowSolution] = useState(false);
-  const [clipDuration, setClipDuration] = useState(2);
-  const [progress, setProgress] = useState(0);
-  const [open, setOpen] = useState(false);
-  const playerRef = useRef<HTMLIFrameElement>(null);
-  const progressInterval = useRef<ReturnType<typeof setInterval>>();
   const [startTime, setStartTime] = useState(0);
+  const [showSolution, setShowSolution] = useState(false);
+  const [clipDuration, setClipDuration] = useState(2); // Start with 2 seconds
+  const [progress, setProgress] = useState(0);
+  const playerRef = useRef<HTMLIFrameElement>(null);
+  const progressInterval = useRef<ReturnType<typeof setInterval>>(undefined);
 
   useEffect(() => {
     const duration = 180; // Assume 3 minutes song length
@@ -70,9 +65,9 @@ export function SongCard({ trackUrl, trackTitle, correctTrackId }: SongCardProps
   };
 
   const handleGuess = () => {
-    if (!selectedTrack) return;
-    
-    const correct = selectedTrack.id === correctTrackId;
+    const normalizedGuess = guess.toLowerCase().trim();
+    const normalizedTitle = trackTitle.toLowerCase().trim();
+    const correct = normalizedGuess === normalizedTitle;
     setIsCorrect(correct);
     if (correct) {
       setShowSolution(true);
@@ -117,35 +112,18 @@ export function SongCard({ trackUrl, trackTitle, correctTrackId }: SongCardProps
         </div>
 
         <div className="flex gap-2">
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="flex-1 justify-between">
-                {selectedTrack ? selectedTrack.title : "Select a song..."}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0">
-              <Command>
-                <CommandInput placeholder="Search songs..." />
-                <CommandEmpty>No song found.</CommandEmpty>
-                <CommandGroup>
-                  {trackDatabase.map((track) => (
-                    <CommandItem
-                      key={track.id}
-                      onSelect={() => {
-                        setSelectedTrack(track);
-                        setOpen(false);
-                      }}
-                    >
-                      {track.title}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </Command>
-            </PopoverContent>
-          </Popover>
-          <Button onClick={handleGuess} disabled={!selectedTrack}>
-            Submit
-          </Button>
+          <Input
+            type="text"
+            placeholder="Enter your guess..."
+            value={guess}
+            onChange={(e) => setGuess(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleGuess();
+              }
+            }}
+          />
+          <Button onClick={handleGuess}>Submit</Button>
         </div>
 
         {!showSolution && (
