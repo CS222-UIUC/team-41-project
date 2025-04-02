@@ -1,38 +1,30 @@
-import fetch from 'node-fetch';
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
-import { SoundCloudTrack } from '@/app/api/soundcloud/types'; 
+import fetch from "node-fetch";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import { SoundCloudTrack } from "@/app/api/soundcloud/types";
 
 interface SearchResponse {
   tracks: SoundCloudTrack[];
 }
 
-dotenv.config({ path: '.env.local' });
+dotenv.config({ path: ".env.local" });
 
 async function searchTracks(query: string): Promise<SoundCloudTrack[]> {
-  const response = await fetch(
-    `http://localhost:3000/api/soundcloud/search?q=${encodeURIComponent(query)}&limit=50`
-  );
-  
+  const response = await fetch(`http://localhost:3000/api/soundcloud/search?q=${encodeURIComponent(query)}&limit=50`);
+
   if (!response.ok) {
     throw new Error(`Search failed: ${response.status}`);
   }
 
-  const data: SearchResponse = await response.json() as SearchResponse;
+  const data: SearchResponse = (await response.json()) as SearchResponse;
   return data.tracks || [];
 }
 
 async function main() {
   try {
-    const searchQueries = [
-      "Taylor Swift",
-      "Ed Sheeran",
-      "Drake",
-      "Billie Eilish",
-      "The Weeknd",
-    ];
+    const searchQueries = ["Taylor Swift", "Ed Sheeran", "Drake", "Billie Eilish", "The Weeknd"];
 
     const allTracks: SoundCloudTrack[] = [];
 
@@ -41,9 +33,9 @@ async function main() {
 
     for (const query of searchQueries) {
       console.log(`Searching for: ${query}`);
-      const tracks = await searchTracks(query) as SoundCloudTrack[];
+      const tracks = (await searchTracks(query)) as SoundCloudTrack[];
       allTracks.push(...tracks);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     // const formattedTracks = allTracks
@@ -54,28 +46,25 @@ async function main() {
     //     permalink_url: track.permalink_url,
     //   }));
 
-    const uniqueTracks = Array.from(
-      new Map(allTracks.map(track => [track.id, track])).values()
-    );
+    const uniqueTracks = Array.from(new Map(allTracks.map((track) => [track.id, track])).values());
 
     const fileContent = `import { SoundCloudTrack } from '@/app/api/soundcloud/types';
 export const trackDatabase: SoundCloudTrack[] = ${JSON.stringify(uniqueTracks, null, 2)};
 `;
 
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const dbPath = path.join(__dirname, '..', 'lib', 'soundcloud', 'trackDatabase.ts');
+    const dbPath = path.join(__dirname, "..", "lib", "soundcloud", "trackDatabase.ts");
 
     await fs.writeFile(dbPath, fileContent);
     console.log(`Successfully saved ${uniqueTracks.length} tracks to the database!`);
-
   } catch (error) {
-    console.error('Error building track database:', error);
-    if (error instanceof Error && error.message.includes('ECONNREFUSED')) {
-      console.error('\nMake sure your Next.js development server is running!');
-      console.error('Run `npm run dev` in another terminal window first.');
+    console.error("Error building track database:", error);
+    if (error instanceof Error && error.message.includes("ECONNREFUSED")) {
+      console.error("\nMake sure your Next.js development server is running!");
+      console.error("Run `npm run dev` in another terminal window first.");
     }
     process.exit(1);
   }
 }
 
-main(); 
+main();

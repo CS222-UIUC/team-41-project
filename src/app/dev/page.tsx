@@ -8,7 +8,6 @@ import { Dropdown } from "@/components/ui/Dropdown";
 
 export default function DevPage() {
   const [selectedTrack, setSelectedTrack] = useState<SoundCloudTrack | null>(null);
-  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     // Randomly select a track from our database
@@ -22,10 +21,6 @@ export default function DevPage() {
       setSelectedTrack(selectedTrack);
     }
   };
-
-  if (error) {
-    return <div className="p-4 text-red-600">{error}</div>;
-  }
 
   return (
     <div className="p-4">

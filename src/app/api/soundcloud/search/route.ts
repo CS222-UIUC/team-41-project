@@ -94,7 +94,7 @@ export async function GET(request: Request) {
       stream_url: track.stream_url,
     }));
 
-    return NextResponse.json({ tracks: formattedTracks }); // 
+    return NextResponse.json({ tracks: formattedTracks }); //
   } catch (error) {
     console.error("Detailed error:", error);
     return NextResponse.json(
