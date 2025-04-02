@@ -8,8 +8,10 @@
     "start": "next start",
     "server": "server.js",
     "lint": "next lint",
-    "format": "prettier --write .",
-    "build-db": "npx tsx src/scripts/build-db.ts"
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check src",
+    "build-db": "npx tsx src/scripts/build-db.ts",
+    "prisma": "npx prisma db pull && npx prisma generate"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.7",
