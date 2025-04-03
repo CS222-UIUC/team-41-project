@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
 import { SOUNDCLOUD_CLIENT_ID, SOUNDCLOUD_CLIENT_SECRET, SOUNDCLOUD_API_URL } from "@/config/constants";
-
-interface SoundCloudTrack {
-  id: number;
-  title: string;
-  permalink_url: string;
-  duration: number;
-}
+import { SoundCloudTrack } from "../types";
 
 async function getAccessToken() {
   try {
@@ -96,9 +90,11 @@ export async function GET(request: Request) {
       title: track.title,
       permalink_url: track.permalink_url,
       duration: track.duration,
+      artwork_url: track.artwork_url,
+      stream_url: track.stream_url,
     }));
 
-    return NextResponse.json({ tracks: formattedTracks });
+    return NextResponse.json({ tracks: formattedTracks }); //
   } catch (error) {
     console.error("Detailed error:", error);
     return NextResponse.json(
