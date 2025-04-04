@@ -22,5 +22,4 @@ model User {
   totalGames Int @default(0) @map("total_games")
   correctGuesses Int @default(0) @map("correct_guesses")
   gamesWon Int @default(0) @map("games_won")
-  // to implement: friends, last logged on
 }
