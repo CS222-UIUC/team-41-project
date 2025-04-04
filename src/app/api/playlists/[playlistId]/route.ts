@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { playlists } from "../playlistsStore";
 
-export async function GET(req: NextRequest, { params }: { params: { playlistId: string } }) {
+type RouteContext = {
+  params: Promise<{
+    playlistId: string;
+  }>;
+};
+
+export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const { playlistId } = params;
+    const { playlistId } = await context.params;
 
     console.log("playlistId: ", playlistId);
 
@@ -30,10 +36,10 @@ export async function GET(req: NextRequest, { params }: { params: { playlistId: 
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { playlistId: string } }) {
+export async function PUT(request: NextRequest, context: RouteContext) {
   try {
-    const { playlistId } = params;
-    const { track } = await req.json();
+    const { playlistId } = await context.params;
+    const { track } = await request.json();
 
     if (!playlistId || !track) {
       return NextResponse.json({ error: "Missing playlistId or track" }, { status: 400 });
@@ -59,10 +65,10 @@ export async function PUT(req: NextRequest, { params }: { params: { playlistId: 
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { playlistId: string } }) {
+export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const { playlistId } = params;
-    const { trackId } = await req.json();
+    const { playlistId } = await context.params;
+    const { trackId } = await request.json();
 
     if (!playlistId || !trackId) {
       return NextResponse.json({ error: "Missing playlistId or trackId" }, { status: 400 });

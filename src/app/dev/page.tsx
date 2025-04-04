@@ -2,60 +2,41 @@
 
 import { useEffect, useState } from "react";
 import { SongCard } from "@/components/SongCard";
-
-interface Track {
-  id: number;
-  title: string;
-  permalink_url: string;
-  duration: number;
-}
+import { trackDatabase } from "@/lib/soundcloud/trackDatabase";
+import { SoundCloudTrack } from "../api/soundcloud/types";
+import { Dropdown } from "@/components/ui/Dropdown";
 
 export default function DevPage() {
-  const [track, setTrack] = useState<Track | null>(null);
-  const [error, setError] = useState<string>("");
-
-  const testSongs = ["Viva La Vida Coldplay", "Shape of You Ed Sheeran", "Riptide Vance Joy"];
+  const [selectedTrack, setSelectedTrack] = useState<SoundCloudTrack | null>(null);
 
   useEffect(() => {
-    const fetchSong = async () => {
-      try {
-        const response = await fetch(
-          `/api/soundcloud/search?q=${testSongs[Math.floor(Math.random() * testSongs.length)]}`
-        );
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch song");
-        }
-
-        if (!data.tracks || data.tracks.length === 0) {
-          throw new Error("No tracks found");
-        }
-
-        // Get the first track from search results
-        setTrack(data.tracks[0]);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to fetch song";
-        setError(errorMessage);
-        console.error(err);
-      }
-    };
-
-    fetchSong();
+    // Randomly select a track from our database
+    const randomTrack = trackDatabase[Math.floor(Math.random() * trackDatabase.length)];
+    setSelectedTrack(randomTrack);
   }, []);
 
-  if (error) {
-    return <div className="p-4 text-red-600">{error}</div>;
-  }
-
-  if (!track) {
-    return <div className="p-4">Loading...</div>;
-  }
+  const handleTrackSelect = (option: { id: number; title: string }) => {
+    const selectedTrack = trackDatabase.find((track) => track.id === option.id);
+    if (selectedTrack) {
+      setSelectedTrack(selectedTrack);
+    }
+  };
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Dev Page</h1>
-      <SongCard trackUrl={track.permalink_url} trackTitle={track.title} />
+      <h1 className="text-2xl font-bold mb-4">Name that Tune!</h1>
+      <div className="mb-6">
+        <Dropdown
+          options={trackDatabase.map((track) => ({ id: track.id, title: track.title }))}
+          onSelect={handleTrackSelect}
+          placeholder="Select a song..."
+        />
+      </div>
+      {selectedTrack ? (
+        <SongCard trackUrl={selectedTrack.permalink_url} trackTitle={selectedTrack.title} />
+      ) : (
+        <div className="p-4">Select a song from the dropdown above</div>
+      )}
     </div>
   );
 }
