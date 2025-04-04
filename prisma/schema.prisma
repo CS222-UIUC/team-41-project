@@ -48,22 +48,21 @@ model SoundCloudToken {
 }
 
 model Playlist {
-  id         String   @id @default(uuid())
-  name       String
-  user_id    String
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now())
+  id String @id @default(uuid())
+  name String
+  userId String @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
 
-  user  User           @relation(fields: [user_id], references: [id])
   songs PlaylistSong[] @relation("PlaylistToSongs")
 }
 
 model PlaylistSong {
-  playlist_id String
-  song_id     String
+  playlistId String @map("playlist_id")
+  songId String @map("song_id")
 
-  playlist Playlist @relation(name: "PlaylistToSongs", fields: [playlist_id], references: [id], onDelete: Cascade)
-  song     Song     @relation(name: "SongToPlaylists", fields: [song_id], references: [id], onDelete: Cascade)
+  playlist Playlist @relation(name: "PlaylistToSongs", fields: [playlistId], references: [id], onDelete: Cascade)
+  song Song @relation(name: "SongToPlaylists", fields: [songId], references: [id], onDelete: Cascade)
 
-  @@id([playlist_id, song_id])
+  @@id([playlistId, songId])
 }
