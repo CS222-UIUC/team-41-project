@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SongCard } from "@/components/SongCard";
+import { SongCard } from "@/components/game/SongCard";
 import { trackDatabase } from "@/lib/soundcloud/trackDatabase";
 import { SoundCloudTrack } from "../api/soundcloud/types";
 import { Dropdown } from "@/components/ui/Dropdown";

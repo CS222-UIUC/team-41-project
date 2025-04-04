@@ -24,3 +24,30 @@ model User {
   gamesWon Int @default(0) @map("games_won")
   // to implement: friends, last logged on
 }
+
+model Song {
+  id            String   @id @default(uuid())
+  spotifyId     String   @unique @map("spotify_id")
+  soundcloudId  String?  @unique @map("soundcloud_id")
+  title         String
+  artist        String
+  album         String?
+  coverUrl      String?  @map("cover_url")
+  permalinkUrl  String?  @map("permalink_url")  // SoundCloud track URL
+  duration      Int?     // Duration in milliseconds
+  access        String   @default("playable") // playable, preview, blocked
+  status        String   @default("pending") // pending, approved, denied
+  addedBy       String?  @map("added_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt
+}
+
+model SoundCloudToken {
+  id           String   @id @default(cuid())
+  accessToken  String
+  refreshToken String?
+  expiresAt    DateTime
+  status       String   @default("ACTIVE") // "ACTIVE", "REFRESHING", "FAILED"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
