@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { playlists } from "./playlistsStore";
-import { Playlist } from "./types";
+import { Playlist } from "@prisma/client";
 
 export async function GET() {
   return NextResponse.json(playlists);
@@ -18,7 +18,8 @@ export async function POST(req: NextRequest) {
       id: crypto.randomUUID(),
       name,
       userId,
-      tracks: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
     playlists.push(newPlaylist);

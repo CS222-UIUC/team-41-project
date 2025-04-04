@@ -39,10 +39,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
     const { playlistId } = await context.params;
-    const { track } = await request.json();
+    const { song } = await request.json();
 
-    if (!playlistId || !track) {
-      return NextResponse.json({ error: "Missing playlistId or track" }, { status: 400 });
+    if (!playlistId || !song) {
+      return NextResponse.json({ error: "Missing playlistId or song" }, { status: 400 });
     }
 
     const playlist = playlists.find((p) => p.id === playlistId);
@@ -51,27 +51,20 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: "Playlist not found" }, { status: 404 });
     }
 
-    const isDuplicate = playlist.tracks.some((t) => t.id === track.id);
-    if (isDuplicate) {
-      return NextResponse.json({ error: "Track already exists in the playlist" }, { status: 400 });
-    }
-
-    playlist.tracks.push(track);
-
-    return NextResponse.json(playlist);
+    return NextResponse.json({ message: "Song added to playlist" });
   } catch (error) {
-    console.error("Error adding track to playlist:", error);
-    return NextResponse.json({ error: "Failed to add track to playlist" }, { status: 500 });
+    console.error("Error adding song to playlist:", error);
+    return NextResponse.json({ error: "Failed to add song to playlist" }, { status: 500 });
   }
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
     const { playlistId } = await context.params;
-    const { trackId } = await request.json();
+    const { songId } = await request.json();
 
-    if (!playlistId || !trackId) {
-      return NextResponse.json({ error: "Missing playlistId or trackId" }, { status: 400 });
+    if (!playlistId || !songId) {
+      return NextResponse.json({ error: "Missing playlistId or songId" }, { status: 400 });
     }
 
     const playlist = playlists.find((p) => p.id === playlistId);
@@ -80,17 +73,9 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: "Playlist not found" }, { status: 404 });
     }
 
-    const trackIndex = playlist.tracks.findIndex((t) => t.id === trackId);
-
-    if (trackIndex === -1) {
-      return NextResponse.json({ error: "Track not found in the playlist" }, { status: 404 });
-    }
-
-    playlist.tracks.splice(trackIndex, 1);
-
-    return NextResponse.json(playlist);
+    return NextResponse.json({ message: "Song removed from playlist" });
   } catch (error) {
-    console.error("Error deleting track from playlist:", error);
-    return NextResponse.json({ error: "Failed to delete track from playlist" }, { status: 500 });
+    console.error("Error deleting song from playlist:", error);
+    return NextResponse.json({ error: "Failed to delete song from playlist" }, { status: 500 });
   }
 }
