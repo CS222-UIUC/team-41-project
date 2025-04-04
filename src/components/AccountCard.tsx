@@ -20,7 +20,7 @@ export default function AccountCard() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const res = await fetch('@api/auth/route', {
+    const res = await fetch('../api/auth/route', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
