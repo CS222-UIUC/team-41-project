@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import SongItem from "./SongItem";
 import { Song } from "@prisma/client";
+import LoadingSpinner from "../effects/LoadingSpinner";
 
 export default function SongReview() {
   const [songs, setSongs] = useState<Song[]>([]);
@@ -29,7 +30,7 @@ export default function SongReview() {
   };
 
   if (isLoading) {
-    return <div className="text-center">Loading songs...</div>;
+    return <LoadingSpinner />;
   }
 
   if (error) {

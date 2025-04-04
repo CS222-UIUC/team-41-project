@@ -8,6 +8,6 @@ export interface UpdateSongData {
 export interface SoundCloudData {
   id: string;
   title: string;
-  permalink_url: string;
+  permalinkUrl: string;
   duration: number;
 }

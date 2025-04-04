@@ -43,7 +43,7 @@ export async function PATCH(request: Request) {
         where: { id: songId },
         data: {
           soundcloudId: soundcloudData.id,
-          permalinkUrl: soundcloudData.permalink_url,
+          permalinkUrl: soundcloudData.permalinkUrl,
           duration: soundcloudData.duration,
           status: "approved",
         },

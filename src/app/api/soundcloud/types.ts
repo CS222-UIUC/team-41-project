@@ -1,7 +1,7 @@
 export interface SoundCloudTrack {
   id: string;
   title: string;
-  permalink_url: string;
+  permalinkUrl: string;
   duration: number;
   access?: "playable" | "preview" | "blocked";
 }

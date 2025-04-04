@@ -15,7 +15,7 @@ export default function DevPage() {
     setSelectedTrack(randomTrack);
   }, []);
 
-  const handleTrackSelect = (option: { id: number; title: string }) => {
+  const handleTrackSelect = (option: { id: string; title: string }) => {
     const selectedTrack = trackDatabase.find((track) => track.id === option.id);
     if (selectedTrack) {
       setSelectedTrack(selectedTrack);
@@ -33,7 +33,7 @@ export default function DevPage() {
         />
       </div>
       {selectedTrack ? (
-        <SongCard trackUrl={selectedTrack.permalink_url} trackTitle={selectedTrack.title} />
+        <SongCard trackUrl={selectedTrack.permalinkUrl} trackTitle={selectedTrack.title} />
       ) : (
         <div className="p-4">Select a song from the dropdown above</div>
       )}

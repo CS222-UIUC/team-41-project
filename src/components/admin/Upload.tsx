@@ -274,7 +274,7 @@ export default function Upload({ type, service }: UploadProps) {
                 onClick={isUploading ? handleQuit : handleUpload}
                 disabled={!currentUrl}
                 className={cn(
-                  "px-4 py-2 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed",
+                  "px-4 py-2 text-white rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
                   isUploading ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
                 )}
               >

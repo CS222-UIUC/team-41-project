@@ -15,7 +15,7 @@ async function searchTracks(query: string): Promise<SoundCloudTrack[]> {
   return tracks.map((track) => ({
     id: track.soundcloudId || "",
     title: track.title,
-    permalink_url: track.permalinkUrl || "",
+    permalinkUrl: track.permalinkUrl || "",
     duration: track.duration || 0,
   }));
 }
@@ -37,11 +37,11 @@ async function main() {
     }
 
     // const formattedTracks = allTracks
-    //   .filter(track => track.title && track.permalink_url)
+    //   .filter(track => track.title && track.permalinkUrl)
     //   .map(track => ({
     //     id: track.id,
     //     title: track.title,
-    //     permalink_url: track.permalink_url,
+    //     permalinkUrl: track.permalinkUrl,
     //   }));
 
     const uniqueTracks = Array.from(new Map(allTracks.map((track) => [track.id, track])).values());

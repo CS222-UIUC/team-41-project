@@ -16,7 +16,7 @@ export default function AdminPage() {
       <div className="flex space-x-4 mb-6">
         <button
           onClick={() => setActiveTab("upload")}
-          className={`px-4 py-2 rounded ${
+          className={`px-4 py-2 rounded cursor-pointer ${
             activeTab === "upload" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
           }`}
         >
@@ -24,7 +24,7 @@ export default function AdminPage() {
         </button>
         <button
           onClick={() => setActiveTab("review")}
-          className={`px-4 py-2 rounded ${
+          className={`px-4 py-2 rounded cursor-pointer ${
             activeTab === "review" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
           }`}
         >
@@ -32,7 +32,7 @@ export default function AdminPage() {
         </button>
         <button
           onClick={() => setActiveTab("library")}
-          className={`px-4 py-2 rounded ${
+          className={`px-4 py-2 rounded cursor-pointer ${
             activeTab === "library" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
           }`}
         >
@@ -45,7 +45,7 @@ export default function AdminPage() {
           <div className="flex space-x-4 mb-6">
             <button
               onClick={() => setUploadType("playlist")}
-              className={`px-4 py-2 rounded ${
+              className={`px-4 py-2 rounded cursor-pointer ${
                 uploadType === "playlist" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
               }`}
             >
@@ -53,7 +53,7 @@ export default function AdminPage() {
             </button>
             <button
               onClick={() => setUploadType("track")}
-              className={`px-4 py-2 rounded ${
+              className={`px-4 py-2 rounded cursor-pointer ${
                 uploadType === "track" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
               }`}
             >

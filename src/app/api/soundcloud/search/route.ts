@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     const accessToken = await tokenService.getAccessToken();
     console.log("Access token received:", accessToken ? "Token received" : "No token");
 
-    const searchUrl = `${SOUNDCLOUD_API_URL}/tracks?q=${encodeURIComponent(query)}&limit=${adjustedLimit}&offset=${offset}`;
+    const searchUrl = `${SOUNDCLOUD_API_URL}/tracks?q=${encodeURIComponent(query)}&limit=${adjustedLimit}&offset=${offset}&access=playable,preview,blocked`;
     const searchResponse = await fetch(searchUrl, {
       headers: {
         Authorization: `OAuth ${accessToken}`,
@@ -65,7 +65,7 @@ export async function GET(request: Request) {
     const formattedTracks = tracks.map((track: SoundCloudTrack) => ({
       id: track.id,
       title: track.title,
-      permalink_url: track.permalink_url,
+      permalinkUrl: track.permalinkUrl,
       duration: track.duration,
     }));
     console.log("Formatted tracks count:", formattedTracks.length);

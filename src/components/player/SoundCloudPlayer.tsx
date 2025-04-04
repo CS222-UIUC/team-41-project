@@ -31,6 +31,7 @@ export default function SoundCloudPlayer({
   showButton = false,
 }: SoundCloudPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const widgetRef = useRef<ReturnType<typeof window.SC.Widget> | null>(null);
 
@@ -49,6 +50,7 @@ export default function SoundCloudPlayer({
         // Bind events
         widgetRef.current.bind(window.SC.Widget.Events.READY, () => {
           console.log("SoundCloud player ready");
+          setIsLoading(false);
         });
 
         widgetRef.current.bind(window.SC.Widget.Events.PLAY, () => {
@@ -109,7 +111,9 @@ export default function SoundCloudPlayer({
         />
       </div>
 
-      {showButton && <PlayButton isPlaying={isPlaying} onClick={togglePlay} className={buttonClassName} />}
+      {showButton && (
+        <PlayButton isPlaying={isPlaying} isLoading={isLoading} onClick={togglePlay} className={buttonClassName} />
+      )}
     </div>
   );
 }

@@ -177,10 +177,11 @@ export default function UploadHistory({ entries }: UploadHistoryProps) {
       </button>
 
       <div
-        className={cn(
-          "mt-2 space-y-2 transition-all duration-300 ease-in-out",
-          isOpen ? "h-auto" : "h-0 overflow-hidden"
-        )}
+        className={cn("mt-2 space-y-2", isOpen ? "max-h-[1000px]" : "max-h-0")}
+        style={{
+          transition: "max-height 1000ms ease-in-out",
+          overflow: "hidden",
+        }}
       >
         <div className="space-y-2 pt-1">
           {entries.map((entry) => (

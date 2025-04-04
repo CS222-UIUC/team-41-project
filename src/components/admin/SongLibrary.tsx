@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import SongItem from "./SongItem";
 import { Song } from "@prisma/client";
-
+import LoadingSpinner from "../effects/LoadingSpinner";
 export default function SongLibrary() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +35,7 @@ export default function SongLibrary() {
     .sort((a, b) => a.title.localeCompare(b.title));
 
   if (isLoading) {
-    return <div className="text-center">Loading songs...</div>;
+    return <LoadingSpinner />;
   }
 
   if (error) {

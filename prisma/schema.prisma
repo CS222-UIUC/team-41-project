@@ -16,6 +16,8 @@ model User {
   totalGames Int @default(0) @map("total_games")
   correctGuesses Int @default(0) @map("correct_guesses")
   gamesWon Int @default(0) @map("games_won")
+
+  savedPlaylists UserPlaylist[] @relation("SavedPlaylists")
 }
 
 model Song {
@@ -50,11 +52,12 @@ model SoundCloudToken {
 model Playlist {
   id String @id @default(uuid())
   name String
-  userId String @map("user_id")
+  createdBy String @map("created_by")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
 
   songs PlaylistSong[] @relation("PlaylistToSongs")
+  savedBy UserPlaylist[] @relation("SavedPlaylists")
 }
 
 model PlaylistSong {
@@ -65,4 +68,15 @@ model PlaylistSong {
   song Song @relation(name: "SongToPlaylists", fields: [songId], references: [id], onDelete: Cascade)
 
   @@id([playlistId, songId])
+}
+
+model UserPlaylist {
+  userId String @map("user_id")
+  playlistId String @map("playlist_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation("SavedPlaylists", fields: [userId], references: [id], onDelete: Cascade)
+  playlist Playlist @relation("SavedPlaylists", fields: [playlistId], references: [id], onDelete: Cascade)
+
+  @@id([userId, playlistId])
 }

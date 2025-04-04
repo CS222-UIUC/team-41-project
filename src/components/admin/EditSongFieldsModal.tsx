@@ -85,7 +85,10 @@ export default function EditSongFieldsModal({ currentDuration, onSave, onClose }
         >
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Edit Fields</h2>
-            <button onClick={handleClose} className="text-gray-500 hover:text-gray-700 transition-colors">
+            <button
+              onClick={handleClose}
+              className="text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
+            >
               <X size={20} weight="bold" />
             </button>
           </div>

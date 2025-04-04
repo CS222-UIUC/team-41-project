@@ -259,7 +259,7 @@ export default function SoundCloudTrackDropdown({
 
                   {playingTrackId === track.id && (
                     <SoundCloudPlayer
-                      trackUrl={track.permalink_url}
+                      trackUrl={track.permalinkUrl}
                       onPlay={handlePlay}
                       onPause={handlePause}
                       playerRef={playerRef}

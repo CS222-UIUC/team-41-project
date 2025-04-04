@@ -5,6 +5,7 @@ import SoundCloudTrackDropdown from "./SoundCloudTrackDropdown";
 import EditSongFieldsModal from "./EditSongFieldsModal";
 import { Song } from "@prisma/client";
 import SoundCloudPlayer from "../player/SoundCloudPlayer";
+import LoadingSpinner from "../effects/LoadingSpinner";
 
 // Define the SoundCloud Widget type
 type SoundCloudWidget = {
@@ -32,7 +33,7 @@ export default function SongItem({ song, editable = false, refreshSongs }: SongI
     ? {
         id: song.soundcloudId,
         duration: song.duration || 0,
-        permalink_url: song.permalinkUrl || "",
+        permalinkUrl: song.permalinkUrl || "",
         title: song.title || "",
       }
     : null;
@@ -427,7 +428,7 @@ export default function SongItem({ song, editable = false, refreshSongs }: SongI
           {selectedTrack && (
             <div className="flex items-center space-x-2">
               <SoundCloudPlayer
-                trackUrl={selectedTrack.permalink_url}
+                trackUrl={selectedTrack.permalinkUrl}
                 onPlay={handlePlay}
                 onPause={handlePause}
                 playerRef={playerRef}
@@ -448,7 +449,7 @@ export default function SongItem({ song, editable = false, refreshSongs }: SongI
           <div className="flex items-center space-x-4">
             {isLoading ? (
               <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
+                <LoadingSpinner />
               </div>
             ) : (
               <>

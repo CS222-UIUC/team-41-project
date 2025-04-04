@@ -15,7 +15,7 @@ interface SoundCloudApiTrack {
     avatar_url: string;
   };
   artwork_url: string | null;
-  permalink_url: string;
+  permalinkUrl: string;
   duration: number;
 }
 
@@ -125,7 +125,7 @@ export class SoundCloudSearchService {
         artist: track.user.username,
         album: "", // SoundCloud doesn't have album info
         coverUrl: track.artwork_url || track.user.avatar_url,
-        permalinkUrl: track.permalink_url,
+        permalinkUrl: track.permalinkUrl,
         duration: track.duration,
       }));
     } catch (error) {
