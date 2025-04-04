@@ -1,16 +1,10 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -22,7 +16,6 @@ model User {
   totalGames Int @default(0) @map("total_games")
   correctGuesses Int @default(0) @map("correct_guesses")
   gamesWon Int @default(0) @map("games_won")
-  // to implement: friends, last logged on
 }
 
 model Song {
@@ -40,6 +33,8 @@ model Song {
   addedBy       String?  @map("added_by")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt
+
+  playlists PlaylistSong[] @relation("SongToPlaylists")
 }
 
 model SoundCloudToken {
@@ -50,4 +45,25 @@ model SoundCloudToken {
   status       String   @default("ACTIVE") // "ACTIVE", "REFRESHING", "FAILED"
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model Playlist {
+  id         String   @id @default(uuid())
+  name       String
+  user_id    String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  user  User           @relation(fields: [user_id], references: [id])
+  songs PlaylistSong[] @relation("PlaylistToSongs")
+}
+
+model PlaylistSong {
+  playlist_id String
+  song_id     String
+
+  playlist Playlist @relation(name: "PlaylistToSongs", fields: [playlist_id], references: [id], onDelete: Cascade)
+  song     Song     @relation(name: "SongToPlaylists", fields: [song_id], references: [id], onDelete: Cascade)
+
+  @@id([playlist_id, song_id])
 }
