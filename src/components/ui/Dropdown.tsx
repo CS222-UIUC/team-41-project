@@ -2,14 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
 
 interface DropdownProps {
-  options: { id: number; title: string }[];
-  onSelect: (option: { id: number; title: string }) => void;
+  options: { id: string; title: string }[];
+  onSelect: (option: { id: string; title: string }) => void;
   placeholder?: string;
 }
 
 export function Dropdown({ options, onSelect, placeholder = "Select a song..." }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<{ id: number; title: string } | null>(null);
+  const [selectedOption, setSelectedOption] = useState<{ id: string; title: string } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export function Dropdown({ options, onSelect, placeholder = "Select a song..." }
     };
   }, []);
 
-  const handleSelect = (option: { id: number; title: string }) => {
+  const handleSelect = (option: { id: string; title: string }) => {
     setSelectedOption(option);
     setIsOpen(false);
     onSelect(option);

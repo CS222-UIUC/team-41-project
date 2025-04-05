@@ -1,25 +1,23 @@
-import fetch from "node-fetch";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import { SoundCloudTrack } from "@/app/api/soundcloud/types";
-
-interface SearchResponse {
-  tracks: SoundCloudTrack[];
-}
+import { SoundCloudSearchService } from "@/services/upload/soundcloud";
 
 dotenv.config({ path: ".env.local" });
 
 async function searchTracks(query: string): Promise<SoundCloudTrack[]> {
-  const response = await fetch(`http://localhost:3000/api/soundcloud/search?q=${encodeURIComponent(query)}&limit=50`);
+  const searchService = new SoundCloudSearchService();
+  const tracks = await searchService.searchTracks(query, 50);
 
-  if (!response.ok) {
-    throw new Error(`Search failed: ${response.status}`);
-  }
-
-  const data: SearchResponse = (await response.json()) as SearchResponse;
-  return data.tracks || [];
+  // Convert TrackData to SoundCloudTrack format
+  return tracks.map((track) => ({
+    id: track.soundcloudId || "",
+    title: track.title,
+    permalinkUrl: track.permalinkUrl || "",
+    duration: track.duration || 0,
+  }));
 }
 
 async function main() {
@@ -39,11 +37,11 @@ async function main() {
     }
 
     // const formattedTracks = allTracks
-    //   .filter(track => track.title && track.permalink_url)
+    //   .filter(track => track.title && track.permalinkUrl)
     //   .map(track => ({
     //     id: track.id,
     //     title: track.title,
-    //     permalink_url: track.permalink_url,
+    //     permalinkUrl: track.permalinkUrl,
     //   }));
 
     const uniqueTracks = Array.from(new Map(allTracks.map((track) => [track.id, track])).values());

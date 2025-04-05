@@ -1,61 +1,30 @@
 import { NextResponse } from "next/server";
-import { SOUNDCLOUD_CLIENT_ID, SOUNDCLOUD_CLIENT_SECRET, SOUNDCLOUD_API_URL } from "@/config/constants";
+import { SOUNDCLOUD_API_URL } from "@/config/constants";
 import { SoundCloudTrack } from "../types";
+import { SoundCloudTokenService } from "@/services/soundcloud/token";
 
-async function getAccessToken() {
-  try {
-    const tokenUrl = `${SOUNDCLOUD_API_URL}/oauth2/token`;
-    const response = await fetch(tokenUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        client_id: SOUNDCLOUD_CLIENT_ID,
-        client_secret: SOUNDCLOUD_CLIENT_SECRET,
-        grant_type: "client_credentials",
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Token error:", {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorText,
-      });
-      throw new Error("Failed to get access token");
-    }
-
-    const data = await response.json();
-    return data.access_token;
-  } catch (error) {
-    console.error("Error getting access token:", error);
-    throw error;
-  }
-}
+const tokenService = SoundCloudTokenService.getInstance();
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("q");
+  const offset = parseInt(searchParams.get("offset") || "0");
+  const requestedLimit = parseInt(searchParams.get("limit") || "3");
+
+  // Adjust the limit to account for SoundCloud API's behavior of returning limit-1 tracks
+  const adjustedLimit = requestedLimit + 1;
 
   if (!query) {
     return NextResponse.json({ error: "Query parameter is required" }, { status: 400 });
   }
 
-  if (!SOUNDCLOUD_CLIENT_ID || !SOUNDCLOUD_CLIENT_SECRET) {
-    console.error("SoundCloud credentials are not set");
-    return NextResponse.json({ error: "SoundCloud credentials are not configured" }, { status: 500 });
-  }
-
   try {
-    // First get an access token
-    const accessToken = await getAccessToken();
+    // Get access token from our token service
+    console.log("Getting access token...");
+    const accessToken = await tokenService.getAccessToken();
+    console.log("Access token received:", accessToken ? "Token received" : "No token");
 
-    // Then make the search request with the token in the Authorization header
-    const searchUrl = `${SOUNDCLOUD_API_URL}/tracks?q=${encodeURIComponent(query)}&limit=10`;
-    console.log("Making search request to SoundCloud API...");
-
+    const searchUrl = `${SOUNDCLOUD_API_URL}/tracks?q=${encodeURIComponent(query)}&limit=${adjustedLimit}&offset=${offset}&access=playable,preview,blocked`;
     const searchResponse = await fetch(searchUrl, {
       headers: {
         Authorization: `OAuth ${accessToken}`,
@@ -63,6 +32,7 @@ export async function GET(request: Request) {
     });
 
     console.log("Search response status:", searchResponse.status);
+    console.log("Search response headers:", JSON.stringify(Object.fromEntries([...searchResponse.headers.entries()])));
 
     if (!searchResponse.ok) {
       const errorText = await searchResponse.text();
@@ -80,6 +50,13 @@ export async function GET(request: Request) {
 
     const tracks = await searchResponse.json();
     console.log("Got search results, count:", tracks.length || 0);
+    console.log("Raw tracks data:", JSON.stringify(tracks.slice(0, 3)));
+    // Log the total number of tracks and the requested limit
+    console.log(`SoundCloud API returned ${tracks.length} tracks (requested limit: ${requestedLimit})`);
+    // If we got fewer tracks than requested, log a warning
+    if (tracks.length < requestedLimit) {
+      console.warn(`SoundCloud API returned fewer tracks (${tracks.length}) than requested (${requestedLimit})`);
+    }
 
     if (!tracks || tracks.length === 0) {
       return NextResponse.json({ tracks: [] });
@@ -88,17 +65,27 @@ export async function GET(request: Request) {
     const formattedTracks = tracks.map((track: SoundCloudTrack) => ({
       id: track.id,
       title: track.title,
-      permalink_url: track.permalink_url,
+      permalinkUrl: track.permalinkUrl,
       duration: track.duration,
-      artwork_url: track.artwork_url,
-      stream_url: track.stream_url,
     }));
+    console.log("Formatted tracks count:", formattedTracks.length);
+    console.log("Formatted tracks:", JSON.stringify(formattedTracks.slice(0, 3)));
 
-    return NextResponse.json({ tracks: formattedTracks }); //
+    return NextResponse.json({ tracks: formattedTracks });
   } catch (error) {
-    console.error("Detailed error:", error);
+    console.error("Error in SoundCloud search:", error);
+
+    // Log more detailed error information
+    if (error instanceof Error) {
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
+    }
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to fetch from SoundCloud API" },
+      { error: error instanceof Error ? error.message : "Failed to search SoundCloud" },
       { status: 500 }
     );
   }

@@ -1,20 +1,11 @@
 import fs from "fs/promises";
 import path from "path";
 import { soundCloudClient } from "../lib/soundcloud/client";
-
-interface SoundCloudTrack {
-  id: number;
-  title: string;
-  permalink_url: string;
-  duration: number;
-}
+import { SoundCloudTrack } from "@/app/api/soundcloud/types";
 
 async function searchTracks(query: string): Promise<SoundCloudTrack[]> {
   const searchResponse = await soundCloudClient.search(query);
-
-  console.log("Search response status:", searchResponse.status);
-
-  return searchResponse;
+  return searchResponse.collection;
 }
 
 async function main() {
@@ -42,11 +33,11 @@ async function main() {
 
     // Filter and format tracks
     const formattedTracks = allTracks
-      .filter((track) => track.title && track.permalink_url) // Remove any invalid tracks
+      .filter((track) => track.title && track.permalinkUrl) // Remove any invalid tracks
       .map((track) => ({
         id: track.id,
         title: track.title,
-        permalink_url: track.permalink_url,
+        permalinkUrl: track.permalinkUrl,
       }));
 
     // Remove duplicates
@@ -57,7 +48,7 @@ async function main() {
 export interface TrackOption {
   id: number;
   title: string;
-  permalink_url: string;
+  permalinkUrl: string;
 }
 
 export const trackDatabase: TrackOption[] = ${JSON.stringify(uniqueTracks, null, 2)};
