@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 
 // get playlist by ID
-export async function GET(request: NextRequest, { params }: { params: { playlistId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Record<string, string> }) {
   try {
     const { playlistId } = params;
 
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest, { params }: { params: { playlist
 }
 
 // add song to playlist
-export async function PUT(request: NextRequest, { params }: { params: { playlistId: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Record<string, string> }) {
   try {
     const { playlistId } = params;
     const { songId } = await request.json();
@@ -72,7 +72,7 @@ export async function PUT(request: NextRequest, { params }: { params: { playlist
 }
 
 // delete song from playlist
-export async function DELETE(request: NextRequest, { params }: { params: { playlistId: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Record<string, string> }) {
   try {
     const { playlistId } = params;
     const { songId } = await request.json();
