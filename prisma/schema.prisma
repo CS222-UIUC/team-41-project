@@ -9,69 +9,42 @@ datasource db {
 }
 
 model User {
-  id             String         @id @default(uuid())
-  userName       String         @default("New User") @map("user_name")
-  totalPoints    Int            @default(0) @map("total_points")
-  averageTime    Float          @default(0.0) @map("average_time")
-  totalGames     Int            @default(0) @map("total_games")
-  correctGuesses Int            @default(0) @map("correct_guesses")
-  gamesWon       Int            @default(0) @map("games_won")
-  UserPlaylist   UserPlaylist[]
-}
+  id String @id @default(uuid())
+  userName String @default("New User") @map("user_name")
+  totalPoints Int @default(0) @map("total_points")
+  averageTime Float @default(0.0) @map("average_time")
+  totalGames Int @default(0) @map("total_games")
+  correctGuesses Int @default(0) @map("correct_guesses")
+  gamesWon Int @default(0) @map("games_won")
 
-model Playlist {
-  id           String         @id @default(uuid())
-  name         String
-  created_at   DateTime       @default(now())
-  updated_at   DateTime       @default(now())
-  created_by   String
-  songs        PlaylistSong[] @relation("PlaylistToSongs")
-  UserPlaylist UserPlaylist[]
+  savedPlaylists UserPlaylist[] @relation("SavedPlaylists")
 }
 
 model Song {
-  id            String         @id
-  spotify_id    String         @unique
-  soundcloud_id String?        @unique
+  id            String   @id @default(uuid())
+  spotifyId     String   @unique @map("spotify_id")
+  soundcloudId  String?  @unique @map("soundcloud_id")
   title         String
   artist        String
   album         String?
-  cover_url     String?
-  permalink_url String?
-  duration      Int?
-  status        String         @default("pending")
-  added_by      String?
-  created_at    DateTime       @default(now())
-  updatedAt     DateTime
-  access        String         @default("playable")
-  playlists     PlaylistSong[] @relation("SongToPlaylists")
-}
+  coverUrl      String?  @map("cover_url")
+  permalinkUrl  String?  @map("permalink_url")  // SoundCloud track URL
+  duration      Int?     // Duration in milliseconds
+  access        String   @default("playable") // playable, preview, blocked
+  status        String   @default("pending") // pending, approved, denied
+  addedBy       String?  @map("added_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt
 
-model PlaylistSong {
-  playlist_id String
-  song_id     String
-  playlist    Playlist @relation("PlaylistToSongs", fields: [playlist_id], references: [id], onDelete: Cascade)
-  song        Song     @relation("SongToPlaylists", fields: [song_id], references: [id], onDelete: Cascade)
-
-  @@id([playlist_id, song_id])
+  playlists PlaylistSong[] @relation("SongToPlaylists")
 }
 
 model SoundCloudToken {
-  id           String   @id
+  id           String   @id @default(cuid())
   accessToken  String
   refreshToken String?
   expiresAt    DateTime
-  status       String   @default("ACTIVE")
+  status       String   @default("ACTIVE") // "ACTIVE", "REFRESHING", "FAILED"
   createdAt    DateTime @default(now())
   updatedAt    DateTime
-}
-
-model UserPlaylist {
-  user_id     String
-  playlist_id String
-  created_at  DateTime @default(now())
-  Playlist    Playlist @relation(fields: [playlist_id], references: [id], onDelete: Cascade)
-  User        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@id([user_id, playlist_id])
 }

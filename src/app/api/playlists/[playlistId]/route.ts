@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: Record<str
       include: {
         songs: {
           include: {
-            song: true, // This grabs the full song data, not just IDs
+            song: true,
           },
         },
       },

@@ -1,10 +1,9 @@
 export interface SoundCloudTrack {
-  id: number;
+  id: string;
   title: string;
-  permalink_url: string;
-  artwork_url: string | null;
+  permalinkUrl: string;
   duration: number;
-  stream_url: string;
+  access?: "playable" | "preview" | "blocked";
 }
 
 export interface SearchResponse {

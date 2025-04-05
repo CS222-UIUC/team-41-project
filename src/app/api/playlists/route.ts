@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { playlists } from "./playlistsStore";
+import { Playlist } from "@prisma/client";
 import prisma from "@/lib/db";
 
 // get all playlists
@@ -44,7 +46,6 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Missing playlist id" }, { status: 400 });
     }
 
-    // Optional: Check if playlist exists before deleting
     const existingPlaylist = await prisma.playlist.findUnique({
       where: { id },
     });
