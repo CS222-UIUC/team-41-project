@@ -1,29 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { playlists } from "../playlistsStore";
+import prisma from "@/lib/db";
 
-type RouteContext = {
-  params: Promise<{
-    playlistId: string;
-  }>;
-};
-
-export async function GET(request: NextRequest, context: RouteContext) {
+// get playlist by ID
+export async function GET(request: NextRequest, context: { params: { playlistId: string } }) {
   try {
     const { playlistId } = await context.params;
 
-    console.log("playlistId: ", playlistId);
-
-    console.log(
-      "All Playlist IDs:",
-      playlists.map((p) => p.id)
-    );
-
-    console.log("All Playlists:", playlists);
     if (!playlistId) {
       return NextResponse.json({ error: "Missing playlistId" }, { status: 400 });
     }
 
-    const playlist = playlists.find((p) => p.id === playlistId);
+    const playlist = await prisma.playlist.findUnique({
+      where: { id: playlistId },
+      include: {
+        songs: {
+          include: {
+            song: true, // This grabs the full song data, not just IDs
+          },
+        },
+      },
+
+    });
 
     if (!playlist) {
       return NextResponse.json({ error: "Playlist not found" }, { status: 404 });
@@ -36,61 +33,70 @@ export async function GET(request: NextRequest, context: RouteContext) {
   }
 }
 
-export async function PUT(request: NextRequest, context: RouteContext) {
+// add song to playlist
+export async function PUT(request: NextRequest, context: { params: { playlistId: string } }) {
   try {
     const { playlistId } = await context.params;
-    const { track } = await request.json();
+    const { songId } = await request.json();
 
-    if (!playlistId || !track) {
-      return NextResponse.json({ error: "Missing playlistId or track" }, { status: 400 });
+    if (!playlistId || !songId) {
+      return NextResponse.json({ error: "Missing playlistId or songId" }, { status: 400 });
     }
 
-    const playlist = playlists.find((p) => p.id === playlistId);
+    const song = await prisma.song.findUnique({ where: { id: songId } });
+    if (!song) {
+      return NextResponse.json({ error: "Song not found" }, { status: 404 });
+    }
 
+    const playlist = await prisma.playlist.findUnique({ where: { id: playlistId } });
     if (!playlist) {
       return NextResponse.json({ error: "Playlist not found" }, { status: 404 });
     }
 
-    const isDuplicate = playlist.tracks.some((t) => t.id === track.id);
-    if (isDuplicate) {
-      return NextResponse.json({ error: "Track already exists in the playlist" }, { status: 400 });
+    const existingEntry = await prisma.playlistSong.findUnique({
+      where: { playlist_id_song_id: { playlist_id: playlistId, song_id: songId } },
+    });
+
+    if (existingEntry) {
+      return NextResponse.json({ error: "Song already exists in playlist" }, { status: 400 });
     }
 
-    playlist.tracks.push(track);
+    const newPlaylistSong = await prisma.playlistSong.create({
+      data: { playlist_id: playlistId, song_id: songId },
+    });
 
-    return NextResponse.json(playlist);
+    return NextResponse.json(newPlaylistSong);
   } catch (error) {
-    console.error("Error adding track to playlist:", error);
-    return NextResponse.json({ error: "Failed to add track to playlist" }, { status: 500 });
+    console.error("Error adding song to playlist:", error);
+    return NextResponse.json({ error: "Failed to add song to playlist" }, { status: 500 });
   }
 }
 
-export async function DELETE(request: NextRequest, context: RouteContext) {
+// delete song from playlist                                                     
+export async function DELETE(request: NextRequest, context: { params: { playlistId: string } }) {
   try {
     const { playlistId } = await context.params;
-    const { trackId } = await request.json();
+    const { songId } = await request.json();
 
-    if (!playlistId || !trackId) {
-      return NextResponse.json({ error: "Missing playlistId or trackId" }, { status: 400 });
+    if (!playlistId || !songId) {
+      return NextResponse.json({ error: "Missing playlistId or songId" }, { status: 400 });
     }
 
-    const playlist = playlists.find((p) => p.id === playlistId);
+    const existingEntry = await prisma.playlistSong.findUnique({
+      where: { playlist_id_song_id: { playlist_id: playlistId, song_id: songId } },
+    });
 
-    if (!playlist) {
-      return NextResponse.json({ error: "Playlist not found" }, { status: 404 });
+    if (!existingEntry) {
+      return NextResponse.json({ error: "Song not found in playlist" }, { status: 404 });
     }
 
-    const trackIndex = playlist.tracks.findIndex((t) => t.id === trackId);
+    await prisma.playlistSong.delete({
+      where: { playlist_id_song_id: { playlist_id: playlistId, song_id: songId } },
+    });
 
-    if (trackIndex === -1) {
-      return NextResponse.json({ error: "Track not found in the playlist" }, { status: 404 });
-    }
-
-    playlist.tracks.splice(trackIndex, 1);
-
-    return NextResponse.json(playlist);
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting track from playlist:", error);
-    return NextResponse.json({ error: "Failed to delete track from playlist" }, { status: 500 });
+    console.error("Error deleting song from playlist:", error);
+    return NextResponse.json({ error: "Failed to delete song from playlist" }, { status: 500 });
   }
 }
