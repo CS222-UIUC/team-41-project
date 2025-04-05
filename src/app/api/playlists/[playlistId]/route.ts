@@ -19,7 +19,6 @@ export async function GET(request: NextRequest, context: { params: { playlistId:
           },
         },
       },
-
     });
 
     if (!playlist) {
@@ -72,7 +71,7 @@ export async function PUT(request: NextRequest, context: { params: { playlistId:
   }
 }
 
-// delete song from playlist                                                     
+// delete song from playlist
 export async function DELETE(request: NextRequest, context: { params: { playlistId: string } }) {
   try {
     const { playlistId } = await context.params;
