@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 
 // get playlist by ID
-export async function GET(request: NextRequest, context: { params: { playlistId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { playlistId: string } }) {
   try {
-    const { playlistId } = await context.params;
+    const { playlistId } = params;
 
     if (!playlistId) {
       return NextResponse.json({ error: "Missing playlistId" }, { status: 400 });
@@ -33,9 +33,9 @@ export async function GET(request: NextRequest, context: { params: { playlistId:
 }
 
 // add song to playlist
-export async function PUT(request: NextRequest, context: { params: { playlistId: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: { playlistId: string } }) {
   try {
-    const { playlistId } = await context.params;
+    const { playlistId } = params;
     const { songId } = await request.json();
 
     if (!playlistId || !songId) {
@@ -72,9 +72,9 @@ export async function PUT(request: NextRequest, context: { params: { playlistId:
 }
 
 // delete song from playlist
-export async function DELETE(request: NextRequest, context: { params: { playlistId: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: { playlistId: string } }) {
   try {
-    const { playlistId } = await context.params;
+    const { playlistId } = params;
     const { songId } = await request.json();
 
     if (!playlistId || !songId) {
