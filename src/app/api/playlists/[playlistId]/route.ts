@@ -4,7 +4,7 @@ import prisma from "@/lib/db";
 // get playlist by ID
 export async function GET(request: NextRequest, { params }: { params: Record<string, string> }) {
   try {
-    const { playlistId } = params;
+    const { playlistId } = await params;
 
     if (!playlistId) {
       return NextResponse.json({ error: "Missing playlistId" }, { status: 400 });
@@ -53,7 +53,7 @@ export async function PUT(request: NextRequest, { params }: { params: Record<str
     }
 
     const existingEntry = await prisma.playlistSong.findUnique({
-      where: { playlist_id_song_id: { playlist_id: playlistId, song_id: songId } },
+      where: { playlistId_songId: { playlistId: playlistId, songId: songId } },
     });
 
     if (existingEntry) {
@@ -61,7 +61,7 @@ export async function PUT(request: NextRequest, { params }: { params: Record<str
     }
 
     const newPlaylistSong = await prisma.playlistSong.create({
-      data: { playlist_id: playlistId, song_id: songId },
+      data: { playlistId: playlistId, songId: songId },
     });
 
     return NextResponse.json(newPlaylistSong);
@@ -82,7 +82,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Record<
     }
 
     const existingEntry = await prisma.playlistSong.findUnique({
-      where: { playlist_id_song_id: { playlist_id: playlistId, song_id: songId } },
+      where: { playlistId_songId: { playlistId: playlistId, songId: songId } },
     });
 
     if (!existingEntry) {
@@ -90,7 +90,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Record<
     }
 
     await prisma.playlistSong.delete({
-      where: { playlist_id_song_id: { playlist_id: playlistId, song_id: songId } },
+      where: { playlistId_songId: { playlistId: playlistId, songId: songId } },
     });
 
     return NextResponse.json({ success: true });

@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     const newPlaylist = await prisma.playlist.create({
       data: {
         name,
-        created_by: createdBy, // Note your DB field is user_id
+        createdBy: createdBy,
       },
     });
 
