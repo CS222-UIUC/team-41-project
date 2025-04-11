@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { playlists } from "./playlistsStore";
-import { Playlist } from "./types";
+import { Playlist } from "@prisma/client";
 
 export async function GET() {
   return NextResponse.json(playlists);
@@ -8,17 +8,18 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, userId } = await req.json();
+    const { name, createdBy } = await req.json();
 
-    if (!name || !userId) {
-      return NextResponse.json({ error: "Missing name or userId" }, { status: 400 });
+    if (!name || !createdBy) {
+      return NextResponse.json({ error: "Missing name or createdBy" }, { status: 400 });
     }
 
     const newPlaylist: Playlist = {
       id: crypto.randomUUID(),
       name,
-      userId,
-      tracks: [],
+      createdBy,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
     playlists.push(newPlaylist);

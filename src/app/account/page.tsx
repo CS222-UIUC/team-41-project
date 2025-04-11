@@ -1,4 +1,4 @@
-import AccountCard from "@/components/AccountCard";
+import AccountCard from "@/components/ui/auth/AccountCard";
 
 export default function Account() {
   return (

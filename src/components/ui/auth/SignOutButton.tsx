@@ -1,0 +1,14 @@
+export default function SignOutButton() {
+    const handleClick = async (event: React.MouseEvent<HTMLButtonElement,MouseEvent>) => {
+        const res = await fetch('@/api/auth/signOut', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+    }
+    
+    return (
+        <button onClick={handleClick} className="border-1 min-w-20 min-h-10 m-4 bg-gray-200 rounded-sm cursor-pointer hover:bg-yellow-600">Sign Out</button>
+    );
+}
