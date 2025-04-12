@@ -8,6 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.error("Error logging out:", error.message);
     } else {
       console.log("User logged out successfully");
+      return res.status(200);
     }
   }
 }

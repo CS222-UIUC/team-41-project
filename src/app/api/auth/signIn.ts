@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
-    })
+    });
     if (error) {
       console.error("Error logging in:", error.message);
     } else {
