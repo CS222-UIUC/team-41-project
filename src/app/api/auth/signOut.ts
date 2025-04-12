@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase/client";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "POST") { // logout
+  if (req.method === "POST") {
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error("Error logging out:", error.message);

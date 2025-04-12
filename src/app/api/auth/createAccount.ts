@@ -1,9 +1,9 @@
 import { supabase } from "@/lib/supabase/client";
 import { NextApiRequest, NextApiResponse } from "next";
-//import type { NextRequest, NextResponse } from 'next/server'
+// import type { NextRequest, NextResponse } from 'next/server'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "PUT") { // create new account
+  if (req.method === "PUT") {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({ message: "All fields are required." });
