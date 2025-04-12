@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { playlists } from "./playlistsStore";
-import { Playlist } from "@prisma/client";
 import prisma from "@/lib/db";
 
 // get all playlists
