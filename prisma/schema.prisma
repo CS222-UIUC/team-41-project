@@ -16,6 +16,7 @@ model User {
   totalGames     Int            @default(0) @map("total_games")
   correctGuesses Int            @default(0) @map("correct_guesses")
   gamesWon       Int            @default(0) @map("games_won")
+  GameSession    GameSession[]
   savedPlaylists UserPlaylist[] @relation("SavedPlaylists")
 }
 
@@ -48,13 +49,14 @@ model SoundCloudToken {
 }
 
 model Playlist {
-  id        String         @id @default(uuid())
-  name      String
-  createdAt DateTime       @default(now()) @map("created_at")
-  updatedAt DateTime       @default(now()) @map("updated_at")
-  createdBy String         @map("created_by")
-  songs     PlaylistSong[] @relation("PlaylistToSongs")
-  savedBy   UserPlaylist[] @relation("SavedPlaylists")
+  id          String         @id @default(uuid())
+  name        String
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @default(now()) @map("updated_at")
+  createdBy   String         @map("created_by")
+  GameSession GameSession[]
+  songs       PlaylistSong[] @relation("PlaylistToSongs")
+  savedBy     UserPlaylist[] @relation("SavedPlaylists")
 }
 
 model PlaylistSong {
@@ -74,4 +76,17 @@ model UserPlaylist {
   user       User     @relation("SavedPlaylists", fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, playlistId])
+}
+
+model GameSession {
+  id           String    @id
+  user_id      String
+  playlist_id  String
+  started_at   DateTime  @default(now())
+  ended_at     DateTime?
+  score        Int       @default(0)
+  correct      Int       @default(0)
+  totalGuesses Int       @default(0)
+  Playlist     Playlist  @relation(fields: [playlist_id], references: [id], onDelete: Cascade)
+  User         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
