@@ -79,14 +79,14 @@ model UserPlaylist {
 }
 
 model GameSession {
-  id           String    @id
-  user_id      String
-  playlist_id  String
-  started_at   DateTime  @default(now())
-  ended_at     DateTime?
-  score        Int       @default(0)
-  correct      Int       @default(0)
-  totalGuesses Int       @default(0)
-  Playlist     Playlist  @relation(fields: [playlist_id], references: [id], onDelete: Cascade)
-  User         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id            String     @id @default(uuid())
+  userId        String     @map("user_id")
+  playlistId    String     @map("playlist_id")
+  startedAt     DateTime   @default(now()) @map("started_at")
+  endedAt       DateTime?  @map("ended_at")
+  score         Int        @default(0)
+  correct       Int        @default(0)
+  totalGuesses  Int        @default(0) @map("total_guesses")
+  playlist      Playlist   @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
