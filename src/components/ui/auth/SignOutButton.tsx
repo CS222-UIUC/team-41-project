@@ -1,3 +1,5 @@
+"use client";
+
 export default function SignOutButton() {
   const handleClick = async () => {
     const res = await fetch("@/api/auth/signOut", {
