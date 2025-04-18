@@ -48,8 +48,26 @@
 
 ### Directory Layout
 
-cs222/ ├── prisma/ # Prisma schema and seed files ├── public/ # Static assets ├── src/ │ ├── app/ # Next.js app directory │ │ ├── api/ # API routes │ │ ├── components/ # React components │ │ ├── lib/ # Utility libraries and helpers │ │ ├── scripts/ # Scripts for database and track management │ │ ├── types/ # TypeScript type definitions │ │ ├── globals.css # Global CSS styles │ │ ├── layout.tsx # Root layout │ │ └── page.tsx # Main page ├── .github/ # GitHub workflows and templates ├── .gitignore # Git ignore rules ├── package.json # Project dependencies and scripts ├── tsconfig.json # TypeScript configuration └── README.md # Project documentation
-
+```
+cs222/ 
+├── prisma/ # Prisma schema and seed files 
+├── public/ # Static assets 
+├── src/ 
+│ ├── app/ # Next.js app directory 
+│ │ ├── api/ # API routes 
+│ │ ├── components/ # React components 
+│ │ ├── lib/ # Utility libraries and helpers 
+│ │ ├── scripts/ # Scripts for database and track management 
+│ │ ├── types/ # TypeScript type definitions 
+│ │ ├── globals.css # Global CSS styles 
+│ │ ├── layout.tsx # Root layout 
+│ │ └── page.tsx # Main page 
+├── .github/ # GitHub workflows and templates 
+├── .gitignore # Git ignore rules 
+├── package.json # Project dependencies and scripts 
+├── tsconfig.json # TypeScript configuration 
+└── README.md # Project documentation
+```
 
 ---
 
