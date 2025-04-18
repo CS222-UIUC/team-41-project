@@ -35,6 +35,7 @@
     "pretty-quick": "^4.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hot-toast": "^2.5.2",
     "tailwind-merge": "^3.0.2",
     "zod": "^3.24.2"
   },
