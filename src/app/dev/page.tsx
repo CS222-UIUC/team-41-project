@@ -1,46 +1,3 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import { SongCard } from "@/components/SongCard";
-// import { trackDatabase } from "@/lib/soundcloud/trackDatabase";
-// import { SoundCloudTrack } from "../api/soundcloud/types";
-// import { Dropdown } from "@/components/ui/Dropdown";
-
-// export default function DevPage() {
-//   const [selectedTrack, setSelectedTrack] = useState<SoundCloudTrack | null>(null);
-
-//   useEffect(() => {
-//     // Randomly select a track from our database
-//     const randomTrack = trackDatabase[Math.floor(Math.random() * trackDatabase.length)];
-//     setSelectedTrack(randomTrack);
-//   }, []);
-
-//   const handleTrackSelect = (option: { id: number; title: string }) => {
-//     const selectedTrack = trackDatabase.find((track) => track.id === option.id);
-//     if (selectedTrack) {
-//       setSelectedTrack(selectedTrack);
-//     }
-//   };
-
-//   return (
-//     <div className="p-4">
-//       <h1 className="text-2xl font-bold mb-4">Name that Tune!</h1>
-//       <div className="mb-6">
-//         <Dropdown
-//           options={trackDatabase.map((track) => ({ id: track.id, title: track.title }))}
-//           onSelect={handleTrackSelect}
-//           placeholder="Select a song..."
-//         />
-//       </div>
-//       {selectedTrack ? (
-//         <SongCard trackUrl={selectedTrack.permalink_url} trackTitle={selectedTrack.title} />
-//       ) : (
-//         <div className="p-4">Select a song from the dropdown above</div>
-//       )}
-//     </div>
-//   );
-// }
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -58,12 +15,10 @@ export default function DevPage() {
   const [givenUp, setGivenUp] = useState(false);
   const [attempts, setAttempts] = useState(0);
 
-  // Choose a random track when the component loads
   useEffect(() => {
     selectRandomTrack();
   }, []);
 
-  // Select a new random track from our database
   const selectRandomTrack = () => {
     const randomTrack = trackDatabase[Math.floor(Math.random() * trackDatabase.length)];
     setSecretTrack(randomTrack);
@@ -74,38 +29,32 @@ export default function DevPage() {
     setAttempts(0);
   };
 
-  // Handle the user's selection from the dropdown
-  const handleTrackSelect = (option: { id: number; title: string }) => {
+  const handleTrackSelect = (option: { id: string; title: string }) => {
     const selectedTrack = trackDatabase.find((track) => track.id === option.id);
     if (selectedTrack) {
       setUserGuess(selectedTrack);
     }
   };
 
-  // Check if the user's guess is correct
   const checkGuess = () => {
     if (userGuess && secretTrack) {
       const correct = userGuess.id === secretTrack.id;
       setIsCorrect(correct);
       setAttempts((prev) => prev + 1);
 
-      // If correct, end the game. If incorrect, allow another try
       if (correct) {
         setGameOver(true);
       } else {
-        // Reset user guess but keep the game going
         setUserGuess(null);
       }
     }
   };
 
-  // Give up and reveal the answer
   const handleGiveUp = () => {
     setGivenUp(true);
     setGameOver(true);
   };
 
-  // Start a new game
   const playAgain = () => {
     selectRandomTrack();
   };
@@ -117,17 +66,15 @@ export default function DevPage() {
       </header>
 
       <main className="flex-1 flex flex-col p-4">
-        {/* The song player - takes up more space now */}
         {secretTrack && (
           <div className="flex-1 flex items-center justify-center mb-8">
             <SongCard
-              trackUrl={secretTrack.permalink_url}
+              trackUrl={secretTrack.permalinkUrl} // Updated from permalink_url
               trackTitle={gameOver && (isCorrect || givenUp) ? secretTrack.title : "Mystery Song"}
             />
           </div>
         )}
 
-        {/* User guess interface - fixed at bottom */}
         <div className="w-full max-w-2xl mx-auto space-y-4 mb-8">
           {!gameOver && (
             <>
@@ -139,7 +86,7 @@ export default function DevPage() {
                 options={trackDatabase.map((track) => ({ id: track.id, title: track.title }))}
                 onSelect={handleTrackSelect}
                 placeholder="Select a song..."
-                value={userGuess}
+                value={userGuess ? { id: userGuess.id, title: userGuess.title } : null}
               />
 
               <div className="flex space-x-4">
@@ -163,7 +110,6 @@ export default function DevPage() {
             </>
           )}
 
-          {/* Game results */}
           {isCorrect === true && gameOver && (
             <div className="p-6 rounded-lg text-center shadow-lg bg-green-100 border-2 border-green-300">
               <div className="font-bold text-xl mb-2">You got it right! 🎉</div>
@@ -180,14 +126,12 @@ export default function DevPage() {
             </div>
           )}
 
-          {/* Wrong guess feedback - only shows temporarily */}
           {isCorrect === false && !gameOver && (
             <div className="p-4 rounded-lg text-center bg-red-100 border-2 border-red-300">
               <div className="font-bold text-lg">Not quite! 😔 Try again!</div>
             </div>
           )}
 
-          {/* Given up state */}
           {givenUp && gameOver && (
             <div className="p-6 rounded-lg text-center shadow-lg bg-orange-100 border-2 border-orange-300">
               <div className="font-bold text-xl mb-2">Better luck next time!</div>
