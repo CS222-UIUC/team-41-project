@@ -2,15 +2,21 @@ import { useState, useRef, useEffect } from "react";
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
 
 interface DropdownProps {
-  options: { id: string; title: string }[];
-  onSelect: (option: { id: string; title: string }) => void;
+  options: { id: number; title: string }[];
+  onSelect: (option: { id: number; title: string }) => void;
   placeholder?: string;
+  value?: { id: number; title: string } | null;
 }
 
-export function Dropdown({ options, onSelect, placeholder = "Select a song..." }: DropdownProps) {
+export function Dropdown({ options, onSelect, placeholder = "Select a song...", value }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<{ id: string; title: string } | null>(null);
+  const [selectedOption, setSelectedOption] = useState<{ id: number; title: string } | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setSelectedOption(value ?? null);
+  }, [value]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -18,21 +24,23 @@ export function Dropdown({ options, onSelect, placeholder = "Select a song..." }
         setIsOpen(false);
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  const handleSelect = (option: { id: string; title: string }) => {
+  const handleSelect = (option: { id: number; title: string }) => {
     setSelectedOption(option);
+    setSearchTerm(""); // Reset search
     setIsOpen(false);
     onSelect(option);
   };
 
+  const filteredOptions = options.filter((option) => option.title.toLowerCase().includes(searchTerm.toLowerCase()));
+
   return (
-    <div className="relative w-full max-w-md cursor-pointer" ref={dropdownRef}>
+    <div className="relative w-full cursor-pointer" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full px-4 py-2 text-left bg-white border border-gray-300 rounded-md shadow-sm flex items-center justify-between"
@@ -45,20 +53,36 @@ export function Dropdown({ options, onSelect, placeholder = "Select a song..." }
         )}
       </button>
 
+      {/* Dropdown list */}
       <div
         className={`absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg transition-all duration-200 ease-in-out ${
           isOpen ? "opacity-100 transform translate-y-0" : "opacity-0 transform -translate-y-2 pointer-events-none"
         }`}
       >
-        {options.map((option) => (
-          <div
-            key={option.id}
-            onClick={() => handleSelect(option)}
-            className="px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors duration-150"
-          >
-            {option.title}
-          </div>
-        ))}
+        {/* Search input */}
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full px-4 py-2 border-b border-gray-200 focus:outline-none"
+          placeholder="Type to filter..."
+          autoFocus
+        />
+        <div className="max-h-60 overflow-y-auto">
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((option) => (
+              <div
+                key={option.id}
+                onClick={() => handleSelect(option)}
+                className="px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors duration-150"
+              >
+                {option.title}
+              </div>
+            ))
+          ) : (
+            <div className="px-4 py-2 text-gray-500">No results found</div>
+          )}
+        </div>
       </div>
     </div>
   );
