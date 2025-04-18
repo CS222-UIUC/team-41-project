@@ -36,7 +36,9 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
     }
   };
 
-  const filteredSongs = songs.filter((song) => song.title.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredSongs = songs
+    .filter((song) => song.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => a.title.localeCompare(b.title));
 
   const handleSongSelect = (song: Song) => {
     if (!selectedSongs.some((s) => s.id === song.id)) {
