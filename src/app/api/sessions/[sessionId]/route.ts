@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 
 // session by sessionId
-export async function GET(request: NextRequest, { params }: { params: { sessionId: string } }) {
-  const { sessionId } = params;
-
+export async function GET(request: NextRequest, context: { params: Promise<{ sessionId: string }> }) {
   try {
+    const { sessionId } = await context.params;
+
     const session = await prisma.gameSession.findUnique({
       where: { id: sessionId },
       include: {
@@ -26,15 +26,15 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
 }
 
 // PATCH to end a session
-export async function PATCH(req: NextRequest, { params }: { params: { sessionId: string } }) {
-  const { sessionId } = params;
-  const { score, correct, totalGuesses } = await req.json();
-
-  if (typeof score !== "number" || typeof correct !== "number" || typeof totalGuesses !== "number") {
-    return NextResponse.json({ error: "Invalid input" }, { status: 400 });
-  }
-
+export async function PATCH(req: NextRequest, context: { params: Promise<{ sessionId: string }> }) {
   try {
+    const { sessionId } = await context.params;
+    const { score, correct, totalGuesses } = await req.json();
+
+    if (typeof score !== "number" || typeof correct !== "number" || typeof totalGuesses !== "number") {
+      return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+    }
+
     const session = await prisma.gameSession.update({
       where: { id: sessionId },
       data: {
