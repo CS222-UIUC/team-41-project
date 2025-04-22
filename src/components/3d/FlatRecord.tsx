@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Mesh, Vector3, EdgesGeometry, LineBasicMaterial, LineSegments, CylinderGeometry } from "three";
 
@@ -6,14 +6,30 @@ export default function FlatRecord() {
   const recordRef = useRef<Mesh>(null);
   const rotationAxis = new Vector3(0.5, 0.2, 0).normalize();
   const rotationSpeed = 0.05;
+  const [isPaused, setIsPaused] = useState(false);
 
   useFrame(() => {
-    if (!recordRef.current) return;
+    if (!recordRef.current || isPaused) return;
     recordRef.current.rotateOnAxis(rotationAxis, rotationSpeed);
   });
 
+  const handlePointerDown = () => {
+    setIsPaused(true);
+  };
+
+  const handlePointerUp = () => {
+    setIsPaused(false);
+  };
+
   return (
-    <group ref={recordRef} position={[0, 0, 0]} rotation={[-Math.PI / 2.5, 0, Math.PI]}>
+    <group
+      ref={recordRef}
+      position={[0, 0, 0]}
+      rotation={[-Math.PI / 2.5, 0, Math.PI]}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
+    >
       {/* Main Record */}
       <mesh>
         <cylinderGeometry args={[1.5, 1.5, 0.05, 64]} />
