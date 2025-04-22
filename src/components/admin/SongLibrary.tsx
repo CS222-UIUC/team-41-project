@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import SongItem from "./SongItem";
+import SongLibraryItem from "./SongLibraryItem";
 import { Song } from "@prisma/client";
 import LoadingSpinner from "../effects/LoadingSpinner";
 export default function SongLibrary() {
@@ -57,7 +57,7 @@ export default function SongLibrary() {
         {filteredAndSortedSongs.length === 0 ? (
           <div className="text-center text-gray-500">No songs found</div>
         ) : (
-          filteredAndSortedSongs.map((song) => <SongItem key={song.id} song={song} refreshSongs={fetchSongs} />)
+          filteredAndSortedSongs.map((song) => <SongLibraryItem key={song.id} song={song} refreshSongs={fetchSongs} />)
         )}
       </div>
     </div>
