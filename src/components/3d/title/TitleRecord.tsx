@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Mesh, Vector3 } from "three";
 
-export default function Record() {
+export default function TitleRecord() {
   const recordRef = useRef<Mesh>(null);
   const rotationAxis = new Vector3(0.5, 0.2, 0).normalize();
   const rotationSpeed = 0.05;

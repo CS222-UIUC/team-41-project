@@ -1,13 +1,13 @@
 import Title from "./Title";
 import MusicNotes from "./MusicNotes";
-import Record from "./Record";
+import TitleRecord from "./TitleRecord";
 
 export default function TitleScene() {
   return (
     <>
       <Title />
       <MusicNotes />
-      <Record />
+      <TitleRecord />
 
       {/* Environment Setup */}
       <ambientLight intensity={0.5} />
