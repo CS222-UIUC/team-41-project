@@ -18,13 +18,13 @@ type SoundCloudWidget = {
   [key: string]: unknown; // Allow for additional methods
 };
 
-interface SongItemProps {
+interface SongLibraryProps {
   song: Song;
   editable?: boolean;
   refreshSongs: () => void;
 }
 
-export default function SongItem({ song, editable = false, refreshSongs }: SongItemProps) {
+export default function SongLibrary({ song, editable = false, refreshSongs }: SongLibraryProps) {
   const [searchResults, setSearchResults] = useState<SoundCloudTrack[]>([]);
   const [isEditingFields, setIsEditingFields] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
