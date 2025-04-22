@@ -12,23 +12,54 @@ interface MenuProps {
 export default function Menu({ options, onConfirm }: MenuProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [showOptions, setShowOptions] = useState(false);
+  const [keyDownTime, setKeyDownTime] = useState<number | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!showOptions) return; // Don't handle keys until options are shown
+      if (!showOptions) return;
 
-      if (e.key === "ArrowUp") {
-        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : options.length - 1));
-      } else if (e.key === "ArrowDown") {
-        setSelectedIndex((prev) => (prev < options.length - 1 ? prev + 1 : 0));
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        if (!keyDownTime) {
+          setKeyDownTime(Date.now());
+          // Initial key press
+          setSelectedIndex((prev) =>
+            e.key === "ArrowUp" ? (prev > 0 ? prev - 1 : options.length - 1) : prev < options.length - 1 ? prev + 1 : 0
+          );
+        } else {
+          // Handle key repeat
+          const timeSinceLastChange = Date.now() - keyDownTime;
+          if (timeSinceLastChange > 100) {
+            // Adjust this value to control repeat speed
+            setKeyDownTime(Date.now());
+            setSelectedIndex((prev) =>
+              e.key === "ArrowUp"
+                ? prev > 0
+                  ? prev - 1
+                  : options.length - 1
+                : prev < options.length - 1
+                  ? prev + 1
+                  : 0
+            );
+          }
+        }
       } else if (e.key === "Enter") {
         onConfirm(options[selectedIndex]);
       }
     };
 
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        setKeyDownTime(null);
+      }
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [options, selectedIndex, onConfirm, showOptions]);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [options, selectedIndex, onConfirm, showOptions, keyDownTime]);
 
   return (
     <div className="w-full h-full flex flex-col gap-8 justify-center">
