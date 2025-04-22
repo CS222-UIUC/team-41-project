@@ -15,9 +15,7 @@ export default function Home() {
 
   const handleConfirm = (option: string) => {
     setSelectedOption(option);
-    if (option !== "Start Game") {
-      setShowPanel(true);
-    }
+    setShowPanel(option !== "Start Game");
   };
 
   return (

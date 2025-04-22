@@ -26,8 +26,12 @@ export default function MenuSidePanel({ title, content, isOpen, onClose }: MenuS
         transform transition-all duration-300 ease-in-out origin-center
         ${isOpen ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0"}`}
     >
-      <RippleText text={title} className="text-[40px] font-bold text-outline-lg text-white" outline="cerulean" />
-      {content}
+      {isOpen && (
+        <>
+          <RippleText text={title} className="text-[40px] font-bold text-outline-lg text-white" outline="cerulean" />
+          {content}
+        </>
+      )}
     </div>
   );
 }
