@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -18,6 +19,7 @@ model User {
   gamesWon       Int            @default(0) @map("games_won")
   GameSession    GameSession[]
   savedPlaylists UserPlaylist[] @relation("SavedPlaylists")
+  gameSessions   GameSessionPlayer[]
 }
 
 model Song {
