@@ -55,7 +55,7 @@ model Playlist {
   name        String
   createdAt   DateTime       @default(now()) @map("created_at")
   updatedAt   DateTime       @default(now()) @map("updated_at")
-  createdBy   String         @map("created_by")
+  createdBy   String?        @map("created_by")
   GameSession GameSession[]
   songs       PlaylistSong[] @relation("PlaylistToSongs")
   savedBy     UserPlaylist[] @relation("SavedPlaylists")
