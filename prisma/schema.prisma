@@ -82,11 +82,25 @@ model GameSession {
   id            String     @id @default(uuid())
   userId        String     @map("user_id")
   playlistId    String     @map("playlist_id")
+  code          String     @unique
+  status        String     @default("waiting")
   startedAt     DateTime   @default(now()) @map("started_at")
   endedAt       DateTime?  @map("ended_at")
-  score         Int        @default(0)
-  correct       Int        @default(0)
-  totalGuesses  Int        @default(0) @map("total_guesses")
   playlist      Playlist   @relation(fields: [playlistId], references: [id], onDelete: Cascade)
   user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  players       GameSessionPlayer[]
+}
+
+model GameSessionPlayer {
+  id            String      @id @default(uuid())
+  sessionId     String      @map("session_id")
+  userId        String?     @map("user_id")
+  nickname      String
+  score         Int         @default(0)
+  correct       Int         @default(0)
+  totalGuesses  Int         @default(0) @map("total_guesses")
+  gameSession   GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user          User?       @relation(fields: [userId], references: [id])
+
+  @@index([sessionId])
 }
