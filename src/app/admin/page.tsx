@@ -12,6 +12,7 @@ export default function AdminPage() {
   const [uploadType, setUploadType] = useState<"playlist" | "track">("playlist");
   const [isCreatePlaylistModalOpen, setIsCreatePlaylistModalOpen] = useState(false);
   const [playlistRefreshKey, setPlaylistRefreshKey] = useState(0);
+  const [playlistSearchQuery, setPlaylistSearchQuery] = useState("");
 
   const handlePlaylistCreated = () => {
     setPlaylistRefreshKey((prev) => prev + 1);
@@ -84,15 +85,22 @@ export default function AdminPage() {
         <SongLibrary />
       ) : (
         <div className="space-y-4">
-          <div className="flex justify-end">
+          <div className="flex justify-between items-center mb-4">
             <button
               onClick={() => setIsCreatePlaylistModalOpen(true)}
               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
             >
               Create Playlist
             </button>
+            <input
+              type="text"
+              placeholder="Search playlists..."
+              value={playlistSearchQuery}
+              onChange={(e) => setPlaylistSearchQuery(e.target.value)}
+              className="px-4 py-2 shadow-md rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-          <PlaylistLibrary key={playlistRefreshKey} />
+          <PlaylistLibrary key={playlistRefreshKey} searchQuery={playlistSearchQuery} />
         </div>
       )}
 

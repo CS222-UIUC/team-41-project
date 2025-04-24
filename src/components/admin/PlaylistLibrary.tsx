@@ -9,7 +9,11 @@ interface PlaylistWithSongs extends Playlist {
   songs: Song[];
 }
 
-export default function PlaylistLibrary() {
+interface PlaylistLibraryProps {
+  searchQuery?: string;
+}
+
+export default function PlaylistLibrary({ searchQuery = "" }: PlaylistLibraryProps) {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [expandedPlaylists, setExpandedPlaylists] = useState<Set<string>>(new Set());
   const [playlistSongs, setPlaylistSongs] = useState<Record<string, Song[]>>({});
@@ -66,6 +70,10 @@ export default function PlaylistLibrary() {
     });
   };
 
+  const filteredPlaylists = playlists.filter((playlist) =>
+    playlist.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) return <div className="text-center">Loading playlists...</div>;
   if (error) return <div className="text-red-500 text-center">{error}</div>;
   if (playlists.length === 0) return <div className="text-center">No playlists found</div>;
@@ -73,7 +81,7 @@ export default function PlaylistLibrary() {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-semibold mb-4">Playlist Library</h2>
-      {playlists.map((playlist) => (
+      {filteredPlaylists.map((playlist) => (
         <div key={playlist.id} className="border rounded-lg overflow-hidden">
           <div
             className="p-4 bg-gray-50 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
@@ -106,6 +114,9 @@ export default function PlaylistLibrary() {
           </div>
         </div>
       ))}
+      {filteredPlaylists.length === 0 && (
+        <div className="text-center text-gray-500">No playlists match your search</div>
+      )}
     </div>
   );
 }
