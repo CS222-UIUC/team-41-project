@@ -1,10 +1,11 @@
 import SignOutButton from "@/components/ui/auth/SignOutButton";
+import CheckSession from "@/components/ui/auth/CheckSession";
 
 export default function Dashboard() {
   return (
-    <div>
+    <CheckSession>
       <h1>Dashboard page</h1>
       <SignOutButton />
-    </div>
+    </CheckSession>
   );
 }

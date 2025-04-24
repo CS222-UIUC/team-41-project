@@ -18,7 +18,7 @@ export default function AccountCard() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const res = await fetch("@/api/auth/createAccount", {
+    const res = await fetch("/api/auth/createAccount", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignInCard() {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -18,7 +21,7 @@ export default function SignInCard() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const res = await fetch("@/api/auth/signIn", {
+    const res = await fetch("/api/auth/signIn", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -29,6 +32,7 @@ export default function SignInCard() {
     if (res.ok) {
       // Redirect or show a success message
       console.log("Logged In");
+      router.push("/dashboard");
     } else {
       console.log("Error");
       const data = await res.json();
