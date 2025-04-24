@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { SpotifyUploadService } from "@/services/upload/spotify";
 import { SoundCloudSearchService } from "@/services/upload/soundcloud";
@@ -109,7 +109,7 @@ async function processTrack(
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const { url, type, service } = await request.json();
     const signal = request.signal;

@@ -8,17 +8,14 @@ const spotifyService = new SpotifyUploadService();
 
 export async function GET(request: NextRequest) {
   try {
-    const status = request.nextUrl.searchParams.get("status") || "pending";
+    const status = request.nextUrl.searchParams.get("status");
 
     const songs = await prisma.song.findMany({
-      where: {
-        status: status,
-      },
+      where: status ? { status } : undefined,
       orderBy: {
-        createdAt: "desc",
+        title: "asc",
       },
     });
-
     return NextResponse.json(songs);
   } catch (error) {
     console.error("Error fetching songs:", error);
@@ -26,7 +23,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function PATCH(request: Request) {
+export async function PATCH(request: NextRequest) {
   try {
     const { songId, action, soundcloudData, duration } = await request.json();
 
@@ -84,7 +81,7 @@ export async function PATCH(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const { url, type, service } = await request.json();
     const signal = request.signal;

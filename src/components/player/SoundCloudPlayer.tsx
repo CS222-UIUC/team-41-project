@@ -1,13 +1,6 @@
 import { useRef, useEffect, RefObject, useState } from "react";
 import PlayButton from "./PlayButton";
-
-type SoundCloudWidget = {
-  play: () => void;
-  pause: () => void;
-  seekTo: (milliseconds: number) => void;
-  bind: (event: string, callback: () => void) => void;
-  [key: string]: unknown; // Allow for additional methods
-};
+import { SoundCloudWidget } from "@/types/soundcloud";
 
 interface SoundCloudPlayerProps {
   trackUrl: string;

@@ -2,8 +2,12 @@ export interface SoundCloudTrack {
   id: string;
   title: string;
   permalinkUrl: string;
-  duration: number;
-  access?: "playable" | "preview" | "blocked";
+  artworkUrl?: string;
+  duration?: number;
+  user?: {
+    username: string;
+  };
+  access?: string;
 }
 
 export interface SearchResponse {

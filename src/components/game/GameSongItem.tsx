@@ -2,18 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Song } from "@prisma/client";
+import { SoundCloudWidget } from "@/types/soundcloud";
 import SoundCloudPlayer from "../player/SoundCloudPlayer";
-
-// Define the SoundCloud Widget type
-type SoundCloudWidget = {
-  play: () => void;
-  pause: () => void;
-  seekTo: (milliseconds: number) => void;
-  bind: (event: string, callback: () => void) => void;
-  unbind: (event: string) => void;
-  getCurrentSound: (callback: (sound: { duration: number }) => void) => void;
-  [key: string]: unknown;
-};
 
 interface GameSongItemProps {
   song: Song;
