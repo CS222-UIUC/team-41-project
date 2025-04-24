@@ -2,26 +2,52 @@
 
 import { useEffect, useState } from "react";
 import { SongCard } from "@/components/game/SongCard";
-import { trackDatabase } from "@/lib/soundcloud/trackDatabase";
-import { SoundCloudTrack } from "../api/soundcloud/types";
-import { Dropdown } from "@/components/ui/Dropdown";
+import { Song } from "@prisma/client";
+import Dropdown from "@/components/ui/Dropdown";
 import { Button } from "@/components/ui/Button";
+import { getAllSongs } from "@/services/songService";
+import { toast } from "react-hot-toast";
 
 export default function DevPage() {
-  const [secretTrack, setSecretTrack] = useState<SoundCloudTrack | null>(null);
-  const [userGuess, setUserGuess] = useState<SoundCloudTrack | null>(null);
+  const [secretTrack, setSecretTrack] = useState<Song | null>(null);
+  const [userGuess, setUserGuess] = useState<Song | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [givenUp, setGivenUp] = useState(false);
   const [attempts, setAttempts] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [allSongs, setAllSongs] = useState<Song[]>([]);
+  const [usedSongIds, setUsedSongIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    selectRandomTrack();
+    const fetchSongs = async () => {
+      try {
+        const songs = await getAllSongs();
+        setAllSongs(songs);
+        if (songs.length > 0) {
+          selectRandomTrack();
+        }
+        setIsLoading(false);
+      } catch (err) {
+        console.error("Failed to load songs:", err);
+        toast.error("Failed to load songs");
+        setIsLoading(false);
+      }
+    };
+
+    fetchSongs();
   }, []);
 
   const selectRandomTrack = () => {
-    const randomTrack = trackDatabase[Math.floor(Math.random() * trackDatabase.length)];
+    const availableSongs = allSongs.filter((song) => !usedSongIds.has(song.id));
+    if (availableSongs.length === 0) {
+      setUsedSongIds(new Set()); // Reset if all songs have been used
+      return selectRandomTrack();
+    }
+    const randomIndex = Math.floor(Math.random() * availableSongs.length);
+    const randomTrack = availableSongs[randomIndex];
     setSecretTrack(randomTrack);
+    setUsedSongIds((prev) => new Set(prev).add(randomTrack.id));
     setUserGuess(null);
     setIsCorrect(null);
     setGameOver(false);
@@ -29,8 +55,8 @@ export default function DevPage() {
     setAttempts(0);
   };
 
-  const handleTrackSelect = (option: { id: string; title: string }) => {
-    const selectedTrack = trackDatabase.find((track) => track.id === option.id);
+  const handleTrackSelect = (option: string) => {
+    const selectedTrack = allSongs.find((track) => track.title === option);
     if (selectedTrack) {
       setUserGuess(selectedTrack);
     }
@@ -44,7 +70,25 @@ export default function DevPage() {
 
       if (correct) {
         setGameOver(true);
+        toast.success("Correct! 🎉", {
+          duration: 2000,
+          position: "top-center",
+          style: {
+            background: "#4CAF50",
+            color: "white",
+            fontSize: "1.1rem",
+          },
+        });
       } else {
+        toast.error("Not quite! Try again!", {
+          duration: 2000,
+          position: "top-center",
+          style: {
+            background: "#f44336",
+            color: "white",
+            fontSize: "1.1rem",
+          },
+        });
         setUserGuess(null);
       }
     }
@@ -53,11 +97,28 @@ export default function DevPage() {
   const handleGiveUp = () => {
     setGivenUp(true);
     setGameOver(true);
+    toast("Skipped song!", {
+      duration: 2000,
+      position: "top-center",
+      style: {
+        background: "#FF9800",
+        color: "white",
+        fontSize: "1.1rem",
+      },
+    });
   };
 
   const playAgain = () => {
     selectRandomTrack();
   };
+
+  if (isLoading) {
+    return <div className="text-center p-4">Loading game...</div>;
+  }
+
+  if (allSongs.length === 0) {
+    return <div className="text-center p-4">No songs available</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -69,8 +130,14 @@ export default function DevPage() {
         {secretTrack && (
           <div className="flex-1 flex items-center justify-center mb-8">
             <SongCard
-              trackUrl={secretTrack.permalinkUrl} // Updated from permalink_url
+              trackUrl={secretTrack.permalinkUrl || ""}
               trackTitle={gameOver && (isCorrect || givenUp) ? secretTrack.title : "Mystery Song"}
+              artistName={secretTrack.artist}
+              songs={allSongs}
+              onGuess={() => {}}
+              attempts={attempts}
+              onGiveUp={handleGiveUp}
+              status={gameOver ? "correct" : "guessing"}
             />
           </div>
         )}
@@ -83,10 +150,10 @@ export default function DevPage() {
                 {attempts > 0 && <span className="text-gray-600 ml-2">Attempts: {attempts}</span>}
               </div>
               <Dropdown
-                options={trackDatabase.map((track) => ({ id: track.id, title: track.title }))}
+                options={allSongs.map((track) => track.title)}
                 onSelect={handleTrackSelect}
                 placeholder="Select a song..."
-                value={userGuess ? { id: userGuess.id, title: userGuess.title } : null}
+                value={userGuess ? userGuess.title : null}
               />
 
               <div className="flex space-x-4">

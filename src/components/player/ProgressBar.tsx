@@ -80,7 +80,7 @@ export default function ProgressBar({
     <div className={`w-full ${className}`}>
       <div
         ref={progressBarRef}
-        className={`w-full ${mini ? "h-1" : "h-2"} bg-gray-200 rounded-full overflow-hidden cursor-pointer`}
+        className={`w-full ${mini ? "h-2" : "h-6"} bg-gray-200 rounded-full overflow-hidden cursor-pointer`}
         onClick={handleClick}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}

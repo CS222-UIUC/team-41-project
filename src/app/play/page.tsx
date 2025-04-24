@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import CreateGameModal from "@/components/game/CreateGameModal";
+import CreateGameModal from "@/components/menu/CreateGameModal";
 
 export default function GamePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);

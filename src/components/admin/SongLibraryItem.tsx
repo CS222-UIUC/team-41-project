@@ -6,17 +6,7 @@ import EditSongFieldsModal from "./EditSongFieldsModal";
 import { Song } from "@prisma/client";
 import SoundCloudPlayer from "../player/SoundCloudPlayer";
 import LoadingSpinner from "../effects/LoadingSpinner";
-
-// Define the SoundCloud Widget type
-type SoundCloudWidget = {
-  play: () => void;
-  pause: () => void;
-  seekTo: (milliseconds: number) => void;
-  bind: (event: string, callback: () => void) => void;
-  unbind: (event: string) => void;
-  getCurrentSound: (callback: (sound: { duration: number }) => void) => void;
-  [key: string]: unknown; // Allow for additional methods
-};
+import { SoundCloudWidget } from "@/types/soundcloud";
 
 interface SongLibraryProps {
   song: Song;
@@ -32,9 +22,9 @@ export default function SongLibrary({ song, editable = false, refreshSongs }: So
   const soundcloudData = song.soundcloudId
     ? {
         id: song.soundcloudId,
-        duration: song.duration || 0,
-        permalinkUrl: song.permalinkUrl || "",
         title: song.title || "",
+        permalinkUrl: song.permalinkUrl || "",
+        artworkUrl: song.coverUrl || "",
       }
     : null;
 
@@ -50,6 +40,7 @@ export default function SongLibrary({ song, editable = false, refreshSongs }: So
   const pausedTimeRef = useRef<number>(0);
   const playerRef = useRef<SoundCloudWidget | null>(null);
   const limit = 3;
+  const [trackDuration, setTrackDuration] = useState<number>(song.duration || 180000);
 
   // Format time in mm:ss
   const formatTime = (ms: number) => {
@@ -77,7 +68,7 @@ export default function SongLibrary({ song, editable = false, refreshSongs }: So
     }
   }, [isPlaying]);
 
-  const onApprove = async (songId: string, soundcloudData: SoundCloudTrack) => {
+  const onApprove = async (songId: string, track: SoundCloudTrack) => {
     try {
       setIsLoading(true);
       const response = await fetch("/api/songs", {
@@ -88,7 +79,10 @@ export default function SongLibrary({ song, editable = false, refreshSongs }: So
         body: JSON.stringify({
           songId,
           action: "approve",
-          soundcloudData,
+          soundcloudData: {
+            ...track,
+            duration: trackDuration,
+          },
         }),
       });
 
@@ -249,8 +243,8 @@ export default function SongLibrary({ song, editable = false, refreshSongs }: So
           try {
             playerRef.current?.getCurrentSound((sound) => {
               if (sound && sound.duration > 0 && selectedTrack) {
-                // Update the selected track's duration with the real duration
-                setSelectedTrack({ ...selectedTrack, duration: sound.duration });
+                // Update the track duration with the real duration
+                setTrackDuration(sound.duration);
 
                 // Auto-update database if durations differ
                 if (song.duration !== sound.duration) {
@@ -290,7 +284,7 @@ export default function SongLibrary({ song, editable = false, refreshSongs }: So
 
     // Start progress update with a more frequent interval
     progressInterval.current = setInterval(() => {
-      const duration = selectedTrack?.duration || 180000; // Duration is in ms
+      const duration = trackDuration; // Duration is in ms
       const now = Date.now();
       const elapsed = now - startTimeRef.current + pausedTimeRef.current;
       const progressPercent = Math.min((elapsed / duration) * 100, 100);
@@ -310,7 +304,7 @@ export default function SongLibrary({ song, editable = false, refreshSongs }: So
         setIsPlaying(false);
       }
     }, 20); // Update every 20ms for smoother progress
-  }, [selectedTrack]);
+  }, [trackDuration]);
 
   const handlePause = useCallback(() => {
     setIsPlaying(false);
@@ -345,7 +339,7 @@ export default function SongLibrary({ song, editable = false, refreshSongs }: So
       const seekPercentage = (clickPosition / progressBarWidth) * 100;
 
       // Get the real duration from the player
-      let realDuration = selectedTrack.duration || 180000;
+      let realDuration = trackDuration;
       if (playerRef.current) {
         try {
           playerRef.current.getCurrentSound((sound) => {
@@ -382,7 +376,7 @@ export default function SongLibrary({ song, editable = false, refreshSongs }: So
         }
       }
     },
-    [selectedTrack, isPlaying]
+    [selectedTrack, isPlaying, trackDuration]
   );
 
   const handleEditFields = async (duration: number) => {
@@ -403,14 +397,8 @@ export default function SongLibrary({ song, editable = false, refreshSongs }: So
         throw new Error("Failed to update song duration");
       }
 
-      // Update the soundcloudData if it exists
-      if (soundcloudData) {
-        soundcloudData.duration = duration;
-      }
-      // Update the selectedTrack if it exists
-      if (selectedTrack) {
-        setSelectedTrack({ ...selectedTrack, duration });
-      }
+      // Update the track duration
+      setTrackDuration(duration);
 
       // Refresh the songs list
       refreshSongs();
@@ -505,7 +493,7 @@ export default function SongLibrary({ song, editable = false, refreshSongs }: So
           </div>
           <div className="flex justify-between mt-1 text-xs text-gray-500">
             <span>{formatTime(currentTime)}</span>
-            <span>{formatTime(selectedTrack.duration || 180000)}</span>
+            <span>{formatTime(trackDuration)}</span>
           </div>
         </div>
       )}

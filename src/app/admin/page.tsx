@@ -4,9 +4,10 @@ import { useState } from "react";
 import Upload from "@/components/admin/Upload";
 import SongReview from "@/components/admin/SongReview";
 import SongLibrary from "@/components/admin/SongLibrary";
+import PlaylistLibrary from "@/components/admin/PlaylistLibrary";
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<"upload" | "review" | "library">("upload");
+  const [activeTab, setActiveTab] = useState<"upload" | "review" | "library" | "playlists">("upload");
   const [uploadType, setUploadType] = useState<"playlist" | "track">("playlist");
 
   return (
@@ -38,6 +39,14 @@ export default function AdminPage() {
         >
           Library
         </button>
+        <button
+          onClick={() => setActiveTab("playlists")}
+          className={`px-4 py-2 rounded cursor-pointer ${
+            activeTab === "playlists" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
+          }`}
+        >
+          Playlists
+        </button>
       </div>
 
       {activeTab === "upload" ? (
@@ -64,8 +73,10 @@ export default function AdminPage() {
         </div>
       ) : activeTab === "review" ? (
         <SongReview />
-      ) : (
+      ) : activeTab === "library" ? (
         <SongLibrary />
+      ) : (
+        <PlaylistLibrary />
       )}
     </div>
   );

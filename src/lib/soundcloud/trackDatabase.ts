@@ -4,12 +4,14 @@ export const trackDatabase: SoundCloudTrack[] = [
     id: "1612887819",
     title: "Cardigan -  Taylor Swift (Slowed & Reverb)  Underwater",
     permalinkUrl: "https://soundcloud.com/firas-dido-339455119/cardigan-taylor-swift-slowed",
+    artworkUrl: "https://i1.sndcdn.com/artworks-000608199201-6j0j0o-t500x500.jpg",
     duration: 82469,
   },
   {
     id: "215764028",
     title: "Blank Space- taylor swift",
     permalinkUrl: "https://soundcloud.com/h-m-h-m-d-4/blank-space-by-taylor-swift",
+    artworkUrl: "https://i1.sndcdn.com/artworks-000100000000-6j0j0o-t500x500.jpg",
     duration: 232040,
   },
   {

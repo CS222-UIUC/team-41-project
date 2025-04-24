@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import SongLibraryItem from "./SongLibraryItem";
 import { Song } from "@prisma/client";
 import LoadingSpinner from "../effects/LoadingSpinner";
+import { getAllSongs } from "@/services/songService";
 
 export default function SongReview() {
   const [songs, setSongs] = useState<Song[]>([]);
@@ -16,11 +17,7 @@ export default function SongReview() {
 
   const fetchSongs = async () => {
     try {
-      const response = await fetch("/api/songs");
-      if (!response.ok) {
-        throw new Error("Failed to fetch songs");
-      }
-      const data = await response.json();
+      const data = await getAllSongs("pending");
       setSongs(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch songs");

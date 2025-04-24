@@ -25,7 +25,13 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pla
       return NextResponse.json({ error: "Playlist not found" }, { status: 404 });
     }
 
-    return NextResponse.json(playlist);
+    // Transform the response to return songs directly
+    const transformedPlaylist = {
+      ...playlist,
+      songs: playlist.songs.map((ps) => ps.song),
+    };
+
+    return NextResponse.json(transformedPlaylist);
   } catch (error) {
     console.error("Error fetching playlist:", error);
     return NextResponse.json({ error: "Failed to fetch playlist" }, { status: 500 });

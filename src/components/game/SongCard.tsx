@@ -1,221 +1,382 @@
-// "use client";
-
-// import { useState, useEffect, useRef } from "react";
-// import { Button } from "@/components/ui/Button";
-// import { Input } from "@/components/ui/Input";
-// import { Play, Pause, Plus } from "@phosphor-icons/react";
-
-// interface SongCardProps {
-//   trackUrl: string;
-//   trackTitle: string;
-// }
-
-// export function SongCard({ trackUrl, trackTitle }: SongCardProps) {
-//   const [isPlaying, setIsPlaying] = useState(false);
-//   const [guess, setGuess] = useState("");
-//   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-//   const [startTime, setStartTime] = useState(0);
-//   const [showSolution, setShowSolution] = useState(false);
-//   const [clipDuration, setClipDuration] = useState(2); // Start with 2 seconds
-//   const [progress, setProgress] = useState(0);
-//   const playerRef = useRef<HTMLIFrameElement>(null);
-//   const progressInterval = useRef<ReturnType<typeof setInterval>>(undefined);
-
-//   useEffect(() => {
-//     const duration = 180; // Assume 3 minutes song length
-//     setStartTime(Math.floor(Math.random() * (duration - 5))); // Max 5 second clip
-//   }, []);
-
-//   const handlePlay = () => {
-//     if (playerRef.current) {
-//       const widget = window.SC.Widget(playerRef.current);
-
-//       widget.bind(window.SC.Widget.Events.READY, () => {
-//         widget.seekTo(startTime * 1000);
-//         widget.play();
-//         setIsPlaying(true);
-//         setProgress(0);
-
-//         // Start progress update
-//         progressInterval.current = setInterval(() => {
-//           setProgress((prev) => {
-//             if (prev >= 100) {
-//               clearInterval(progressInterval.current);
-//               return 100;
-//             }
-//             return prev + 100 / clipDuration / 10; // Update 10 times per second
-//           });
-//         }, 100);
-
-//         // Stop after specified duration
-//         setTimeout(() => {
-//           widget.pause();
-//           setIsPlaying(false);
-//           clearInterval(progressInterval.current);
-//           setProgress(100);
-//         }, clipDuration * 1000);
-//       });
-//     }
-//   };
-
-//   const handleAddSecond = () => {
-//     if (clipDuration < 5) {
-//       setClipDuration((prev) => prev + 1);
-//     }
-//   };
-
-//   const handleGuess = () => {
-//     const normalizedGuess = guess.toLowerCase().trim();
-//     const normalizedTitle = trackTitle.toLowerCase().trim();
-//     const correct = normalizedGuess === normalizedTitle;
-//     setIsCorrect(correct);
-//     if (correct) {
-//       setShowSolution(true);
-//     }
-//   };
-
-//   const handleGiveUp = () => {
-//     setShowSolution(true);
-//     setIsCorrect(false);
-//   };
-
-//   return (
-//     <div className="p-4 border rounded-lg shadow-md space-y-4">
-//       {/* Hidden embed player*/}
-//       <div className={showSolution ? "w-full h-20" : "w-0 h-0 overflow-hidden"}>
-//         <iframe
-//           ref={playerRef}
-//           width="100%"
-//           height="100%"
-//           scrolling="no"
-//           frameBorder="no"
-//           allow="autoplay"
-//           src={`https://w.soundcloud.com/player/?url=${trackUrl}&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=true`}
-//         />
-//       </div>
-
-//       <div className="space-y-2">
-//         {/* Progress bar */}
-//         <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-//           <div className="h-full bg-blue-500 transition-all duration-100" style={{ width: `${progress}%` }} />
-//         </div>
-
-//         {/* Playback controls */}
-//         <div className="flex gap-2 items-center">
-//           <Button onClick={handlePlay} disabled={isPlaying} className="flex-1" variant="outline">
-//             {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-//             <span className="ml-2">{clipDuration}s clip</span>
-//           </Button>
-//           <Button onClick={handleAddSecond} disabled={isPlaying || clipDuration >= 5} variant="outline" size="icon">
-//             <Plus className="w-5 h-5" />
-//           </Button>
-//         </div>
-
-//         <div className="flex gap-2">
-//           <Input
-//             type="text"
-//             placeholder="Enter your guess..."
-//             value={guess}
-//             onChange={(e) => setGuess(e.target.value)}
-//             onKeyDown={(e) => {
-//               if (e.key === "Enter") {
-//                 handleGuess();
-//               }
-//             }}
-//           />
-//           <Button onClick={handleGuess}>Submit</Button>
-//         </div>
-
-//         {!showSolution && (
-//           <Button onClick={handleGiveUp} variant="outline" className="w-full mt-2">
-//             Give Up
-//           </Button>
-//         )}
-
-//         {isCorrect !== null && (
-//           <div className="text-center space-y-2">
-//             <div className={`font-semibold ${isCorrect ? "text-green-600" : "text-red-600"}`}>
-//               {isCorrect ? "Correct!" : "Try again!"}
-//             </div>
-//             {showSolution && <div className="text-sm text-gray-600">The song was: {trackTitle}</div>}
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/Button";
-import { Play, Pause, Plus } from "@phosphor-icons/react";
+import { Play, Pause, Plus, MusicNote, SkipForward, SpinnerGap } from "@phosphor-icons/react";
+import RippleText from "../effects/RippleText";
+import ProgressBar from "../player/ProgressBar";
+import GuessModal from "./GuessModal";
+import { Song } from "@prisma/client";
+import { toast } from "react-hot-toast";
+import { Tooltip } from "../ui/Tooltip";
+import { SoundCloudWidget } from "@/types/soundcloud";
+
+// Add SC type definition
+declare const SC: {
+  Widget: {
+    Events: {
+      READY: string;
+      PLAY: string;
+      PAUSE: string;
+      FINISH: string;
+    };
+  };
+};
 
 interface SongCardProps {
   trackUrl: string;
   trackTitle: string;
+  artistName: string;
+  songs: Song[];
+  onGuess: (song: Song) => void;
+  attempts: number;
+  onGiveUp: () => void;
+  status: "guessing" | "correct" | "incorrect";
 }
 
-export function SongCard({ trackUrl, trackTitle }: SongCardProps) {
+export function SongCard({
+  trackUrl,
+  trackTitle,
+  artistName,
+  songs,
+  onGuess,
+  attempts,
+  onGiveUp,
+  status,
+}: SongCardProps) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [startTime, setStartTime] = useState(0);
-  const [clipDuration, setClipDuration] = useState(2); // Start with 2 seconds
+  const [isLoading, setIsLoading] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [clipDuration, setClipDuration] = useState(1);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isGuessModalOpen, setIsGuessModalOpen] = useState(false);
   const playerRef = useRef<HTMLIFrameElement>(null);
-  const progressInterval = useRef<ReturnType<typeof setInterval>>(undefined);
+  const progressIntervalRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number>(0);
+  const pausedTimeRef = useRef<number>(0);
+  const widgetRef = useRef<SoundCloudWidget | null>(null);
+  const [fullDuration, setFullDuration] = useState(0);
 
+  // Initialize the widget and load the audio
   useEffect(() => {
-    // Reset player state when the track changes
+    console.log("Track URL changed, resetting widget:", trackUrl);
+    // Clean up any existing widget first
+    if (widgetRef.current) {
+      widgetRef.current.pause();
+      widgetRef.current.unbind(window.SC.Widget.Events.READY);
+      widgetRef.current.unbind(window.SC.Widget.Events.PLAY);
+      widgetRef.current.unbind(window.SC.Widget.Events.PAUSE);
+      widgetRef.current.unbind(window.SC.Widget.Events.FINISH);
+      widgetRef.current = null;
+    }
+
+    // Reset all states
+    setIsLoading(true);
+    setIsReady(false);
     setIsPlaying(false);
     setProgress(0);
-    setClipDuration(2); // Reset clip duration back to default 2 seconds
-    clearInterval(progressInterval.current);
+    setCurrentTime(0);
+    setFullDuration(0);
 
-    // Choose a random start time for the song clip
-    const duration = 180; // Assume 3 minutes song length
-    setStartTime(Math.floor(Math.random() * (duration - 5))); // Max 5 second clip
-  }, [trackUrl]);
-
-  const handlePlay = () => {
     if (playerRef.current) {
-      const widget = window.SC.Widget(playerRef.current);
+      console.log("Creating new widget");
+      // Create new widget
+      const widget = window.SC.Widget(playerRef.current) as unknown as SoundCloudWidget;
+      widgetRef.current = widget;
 
-      widget.bind(window.SC.Widget.Events.READY, () => {
-        widget.seekTo(startTime * 1000);
-        widget.play();
-        setIsPlaying(true);
-        setProgress(0);
+      const bindEvents = () => {
+        // Bind play event
+        widget.bind(SC.Widget.Events.PLAY, () => {
+          console.log("Widget PLAY event fired, setting isPlaying to true");
+          setIsPlaying(true);
+          setIsLoading(false);
+        });
 
-        // Start progress update
-        progressInterval.current = setInterval(() => {
-          setProgress((prev) => {
-            if (prev >= 100) {
-              clearInterval(progressInterval.current);
-              return 100;
-            }
-            return prev + 100 / clipDuration / 10; // Update 10 times per second
-          });
-        }, 100);
-
-        // Stop after specified duration
-        setTimeout(() => {
-          widget.pause();
+        // Bind pause event
+        widget.bind(SC.Widget.Events.PAUSE, () => {
+          console.log("Widget PAUSE event fired, setting isPlaying to false");
           setIsPlaying(false);
-          clearInterval(progressInterval.current);
-          setProgress(100);
-        }, clipDuration * 1000);
+          setIsLoading(false);
+        });
+
+        // Bind finish event
+        widget.bind(SC.Widget.Events.FINISH, () => {
+          console.log("Widget FINISH event fired, setting isPlaying to false");
+          setIsPlaying(false);
+          setIsLoading(false);
+          setProgress(0);
+          setCurrentTime(0);
+        });
+      };
+
+      // Bind ready event
+      widget.bind(SC.Widget.Events.READY, () => {
+        console.log("Widget READY event fired");
+        if (!widgetRef.current) return;
+
+        // Bind other events after widget is ready
+        bindEvents();
+
+        // Get the full song duration
+        widget.getCurrentSound((sound) => {
+          console.log("Got current sound duration:", sound.duration);
+          if (!widgetRef.current) return;
+          setFullDuration(sound.duration / 1000);
+          setIsReady(true);
+          setIsLoading(false);
+        });
       });
     }
+
+    return () => {
+      console.log("Cleanup effect running");
+      if (widgetRef.current) {
+        widgetRef.current.pause();
+        widgetRef.current.unbind(SC.Widget.Events.READY);
+        widgetRef.current.unbind(SC.Widget.Events.PLAY);
+        widgetRef.current.unbind(SC.Widget.Events.PAUSE);
+        widgetRef.current.unbind(SC.Widget.Events.FINISH);
+        widgetRef.current = null;
+      }
+      setIsPlaying(false);
+      setIsLoading(false);
+      setIsReady(false);
+    };
+  }, [trackUrl, status]);
+
+  // Handle status changes (e.g., when answer is revealed)
+  useEffect(() => {
+    if (isReady && widgetRef.current) {
+      if (status !== "guessing") {
+        // Auto-play full song when answer is revealed
+        handlePlayFullSong();
+      } else {
+        // Reset state when starting a new song
+        setProgress(0);
+        setCurrentTime(0);
+        if (progressIntervalRef.current !== null) {
+          window.clearInterval(progressIntervalRef.current);
+          progressIntervalRef.current = null;
+        }
+      }
+    }
+  }, [status, isReady]);
+
+  useEffect(() => {
+    if (widgetRef.current) {
+      widgetRef.current.bind(SC.Widget.Events.PLAY, () => {
+        if (widgetRef.current) {
+          setIsPlaying(true);
+          setIsLoading(false);
+        }
+      });
+
+      widgetRef.current.bind(SC.Widget.Events.PAUSE, () => {
+        if (widgetRef.current) {
+          setIsPlaying(false);
+          setIsLoading(false);
+        }
+      });
+
+      widgetRef.current.bind(SC.Widget.Events.FINISH, () => {
+        if (widgetRef.current) {
+          setIsPlaying(false);
+          setIsLoading(false);
+          setProgress(0);
+          setCurrentTime(0);
+        }
+      });
+
+      return () => {
+        if (widgetRef.current) {
+          widgetRef.current.unbind(SC.Widget.Events.PLAY);
+          widgetRef.current.unbind(SC.Widget.Events.PAUSE);
+          widgetRef.current.unbind(SC.Widget.Events.FINISH);
+        }
+      };
+    }
+  }, [widgetRef.current]);
+
+  useEffect(() => {
+    if (widgetRef.current && isPlaying) {
+      const updateProgress = () => {
+        if (!widgetRef.current) return;
+
+        widgetRef.current.getPosition((position) => {
+          const currentTime = position / 1000; // Convert to seconds
+          setCurrentTime(currentTime * 1000);
+
+          if (status === "guessing") {
+            const progress = (currentTime / clipDuration) * 100;
+            setProgress(Math.min(progress, 100));
+
+            // Auto-pause when clip duration is reached
+            if (currentTime >= clipDuration && widgetRef.current) {
+              widgetRef.current.pause();
+              setIsPlaying(false);
+              setProgress(100);
+              setCurrentTime(clipDuration * 1000);
+            }
+          } else {
+            // In non-guessing mode, use full song duration for progress
+            if (widgetRef.current) {
+              widgetRef.current.getDuration((duration) => {
+                const progress = (currentTime / (duration / 1000)) * 100;
+                setProgress(Math.min(progress, 100));
+              });
+            }
+          }
+        });
+      };
+
+      // Clear any existing interval
+      if (progressIntervalRef.current !== null) {
+        window.clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+
+      // Set up new interval if playing
+      progressIntervalRef.current = window.setInterval(updateProgress, 50);
+
+      return () => {
+        if (progressIntervalRef.current !== null) {
+          window.clearInterval(progressIntervalRef.current);
+          progressIntervalRef.current = null;
+        }
+      };
+    }
+  }, [isPlaying, status, clipDuration]);
+
+  const handlePlay = () => {
+    console.log("handlePlay called, current states:", { isReady, isPlaying, isLoading });
+    if (!widgetRef.current) {
+      console.log("No widget, setting loading");
+      setIsLoading(true);
+      return;
+    }
+
+    if (!isReady) {
+      console.log("Not ready, setting loading");
+      setIsLoading(true);
+      return;
+    }
+
+    if (isPlaying) {
+      console.log("Already playing, handling pause");
+      handlePause();
+      return;
+    }
+
+    setIsPlaying(true);
+    setIsLoading(false);
+
+    if (status === "guessing") {
+      handlePlayClip();
+    } else {
+      handlePlayFullSong();
+    }
   };
+
+  const handlePause = () => {
+    console.log("handlePause called, current states:", { isReady, isPlaying, isLoading });
+    if (!widgetRef.current) return;
+
+    setIsPlaying(false);
+    setIsLoading(false);
+    widgetRef.current.pause();
+  };
+
+  const handlePlayClip = () => {
+    console.log("handlePlayClip called");
+    if (!widgetRef.current) return;
+
+    // Reset state
+    setProgress(0);
+    setCurrentTime(0);
+    startTimeRef.current = Date.now();
+    pausedTimeRef.current = 0;
+
+    // Start playback
+    widgetRef.current.seekTo(0);
+    widgetRef.current.play();
+  };
+
+  const handlePlayFullSong = () => {
+    console.log("handlePlayFullSong called");
+    if (!widgetRef.current) return;
+
+    // Start playback from current position
+    widgetRef.current.play();
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (progressIntervalRef.current !== null) {
+        window.clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      if (widgetRef.current) {
+        widgetRef.current.pause();
+        widgetRef.current.unbind(window.SC.Widget.Events.READY);
+        widgetRef.current.unbind(window.SC.Widget.Events.PLAY);
+        widgetRef.current.unbind(window.SC.Widget.Events.PAUSE);
+        widgetRef.current.unbind(window.SC.Widget.Events.FINISH);
+        widgetRef.current = null;
+      }
+      setIsPlaying(false);
+      setIsLoading(false);
+      setIsReady(false);
+    };
+  }, []);
 
   const handleAddSecond = () => {
     if (clipDuration < 5) {
       setClipDuration((prev) => prev + 1);
+      toast(`Added 1s!`);
+
+      // Auto-play the clip with the new duration
+      if (isReady) {
+        handlePlayClip();
+      }
+    } else {
+      toast("Maximum duration reached!");
     }
   };
 
+  // Add keyboard controls
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInput = activeElement?.tagName === "INPUT";
+
+      if (!isInput) {
+        if (e.key === " ") {
+          e.preventDefault();
+          if (isPlaying) {
+            handlePause();
+          } else {
+            handlePlay();
+          }
+        } else if (e.key === "ArrowRight" && !isPlaying && clipDuration < 5) {
+          e.preventDefault();
+          handleAddSecond();
+        } else if (e.key === "/" || e.key === "g") {
+          e.preventDefault();
+          setIsGuessModalOpen(true);
+        } else if (e.key === "s") {
+          e.preventDefault();
+          onGiveUp();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isPlaying, clipDuration, onGiveUp, handlePlay, handlePause]);
+
   return (
-    <div className="w-full max-w-4xl p-8 border-2 border-blue-200 rounded-xl shadow-xl bg-white space-y-6">
+    <div className="w-full max-w-4xl p-8 border-2 border-blue-200 rounded-xl shadow-xl bg-white space-y-4">
       {/* Song title display with animated background */}
       <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-blue-500 to-pink-600 py-10 px-6">
         <div className="absolute inset-0 opacity-10">
@@ -234,9 +395,35 @@ export function SongCard({ trackUrl, trackTitle }: SongCardProps) {
             />
           ))}
         </div>
-        <h2 className="text-3xl font-bold text-center text-white tracking-wide">{trackTitle}</h2>
+        <div className="w-full h-full flex flex-col items-center justify-center space-y-2">
+          <RippleText
+            text={status === "guessing" ? "Mystery Song" : trackTitle}
+            className="text-white text-4xl font-bold"
+          />
+          {status !== "guessing" && (
+            <RippleText text={artistName} className="text-white text-2xl font-medium" outline="" />
+          )}
+        </div>
       </div>
-
+      {status !== "guessing" && (
+        <div className="text-foreground text-lg flex justify-center mb-2">
+          {status === "correct" ? (
+            <div className="flex items-center gap-2">
+              <span>
+                Congrats! You got the song in {attempts} {attempts === 1 ? "guess" : "guesses"}. Press
+              </span>
+              <SkipForward className="w-5 h-5" />
+              <span>to go to the next song.</span>
+            </div>
+          ) : status === "incorrect" ? (
+            <div className="flex items-center gap-2">
+              <span>Better luck next time! Press</span>
+              <SkipForward className="w-5 h-5" />
+              <span>to go to the next song.</span>
+            </div>
+          ) : null}
+        </div>
+      )}
       {/* Hidden embed player */}
       <div className="w-0 h-0 overflow-hidden">
         <iframe
@@ -251,54 +438,99 @@ export function SongCard({ trackUrl, trackTitle }: SongCardProps) {
       </div>
 
       <div className="space-y-4">
-        {/* Progress bar with animated gradient */}
-        <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-blue-500 to-pink-500 transition-all duration-100"
-            style={{ width: `${progress}%` }}
-          />
+        {/* Controls and progress bar */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Tooltip content="Play">
+              <button
+                onClick={handlePlay}
+                disabled={isLoading}
+                className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-md disabled:hover:bg-blue-600"
+              >
+                {isLoading ? (
+                  <SpinnerGap className="w-6 h-6 animate-spin" />
+                ) : isPlaying ? (
+                  <Pause className="w-6 h-6" />
+                ) : (
+                  <Play className="w-6 h-6" />
+                )}
+              </button>
+            </Tooltip>
+            <Tooltip content="Add 1s">
+              <button
+                onClick={handleAddSecond}
+                disabled={isPlaying || clipDuration >= 5}
+                className="p-2 bg-pink-600 hover:bg-pink-700 text-white rounded-full transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-md disabled:hover:bg-pink-600"
+              >
+                <Plus className="w-6 h-6" />
+              </button>
+            </Tooltip>
+            <Tooltip content="Guess">
+              <button
+                onClick={() => setIsGuessModalOpen(true)}
+                className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-full transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1"
+              >
+                <MusicNote className="w-6 h-6" />
+              </button>
+            </Tooltip>
+            <Tooltip content={status === "guessing" ? "Skip" : "Next Song"}>
+              <button
+                onClick={onGiveUp}
+                className="p-2 bg-orange-600 hover:bg-orange-700 text-white rounded-full transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1"
+              >
+                <SkipForward className="w-6 h-6" />
+              </button>
+            </Tooltip>
+            <span className="text-sm text-gray-600">{clipDuration}s</span>
+          </div>
+          <div className="flex-1">
+            <ProgressBar
+              progress={progress}
+              currentTime={currentTime}
+              duration={status === "guessing" ? clipDuration * 1000 : fullDuration * 1000}
+              mini={true}
+              showTime={false}
+            />
+          </div>
         </div>
 
-        {/* Playback controls */}
-        <div className="flex gap-3 items-center">
-          <Button
-            onClick={handlePlay}
-            disabled={isPlaying}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-lg font-medium py-3 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1"
-          >
-            {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
-            <span className="ml-2">{clipDuration}s clip</span>
-          </Button>
-
-          <Button
-            onClick={handleAddSecond}
-            disabled={isPlaying || clipDuration >= 5}
-            className="p-3 bg-pink-600 hover:bg-pink-700 text-white transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-md"
-          >
-            <Plus className="w-6 h-6" />
-          </Button>
-        </div>
-
-        {/* Clip duration indicator */}
-        <div className="text-center text-gray-600 mt-2">
-          <span className="font-medium">Maximum clip duration: {clipDuration} seconds</span>
-          {clipDuration < 5 && <span className="text-xs text-blue-600 ml-2">(Click + to add more time)</span>}
+        {/* Music equalizer visualization */}
+        <div className="flex justify-center items-end h-12 gap-1 mt-4">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div
+              key={i}
+              className="w-2 bg-gradient-to-t from-blue-600 to-pink-500 rounded-t transition-all duration-500"
+              style={{
+                height: isPlaying ? `${Math.random() * 80 + 20}%` : "10%",
+                animationName: isPlaying ? "bounce" : "none",
+                animationDuration: `${Math.random() * 0.5 + 0.2}s`,
+                animationIterationCount: "infinite",
+                animationDirection: "alternate",
+                animationDelay: `${i * 0.1}s`,
+              }}
+            />
+          ))}
         </div>
       </div>
 
-      {/* Music equalizer visualization */}
-      <div className="flex justify-center items-end h-12 gap-1 mt-4">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <div
-            key={i}
-            className="w-2 bg-gradient-to-t from-blue-600 to-pink-500 rounded-t transition-all duration-500"
-            style={{
-              height: isPlaying ? `${Math.random() * 80 + 20}%` : "10%",
-              animationDelay: `${i * 0.1}s`,
-            }}
-          />
-        ))}
-      </div>
+      <style jsx>{`
+        @keyframes bounce {
+          0% {
+            height: 10%;
+          }
+          100% {
+            height: 90%;
+          }
+        }
+      `}</style>
+
+      <GuessModal
+        isOpen={isGuessModalOpen}
+        onClose={() => setIsGuessModalOpen(false)}
+        songs={songs}
+        onGuess={onGuess}
+        attempts={attempts}
+      />
     </div>
   );
 }
