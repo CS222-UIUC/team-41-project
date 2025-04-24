@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Play, Pause, Plus, MusicNote, SkipForward, SpinnerGap } from "@phosphor-icons/react";
 import RippleText from "../effects/RippleText";
 import ProgressBar from "../player/ProgressBar";
-import GuessModal from "./GuessModal";
+// import GuessModal from "./GuessModal";
 import { Song } from "@prisma/client";
 import { toast } from "react-hot-toast";
 import { Tooltip } from "../ui/Tooltip";
@@ -28,6 +28,7 @@ interface SongCardProps {
   artistName: string;
   songs: Song[];
   onGuess: (song: Song) => void;
+  onOpenGuessModal: () => void;
   attempts: number;
   onGiveUp: () => void;
   status: "guessing" | "correct" | "incorrect";
@@ -37,8 +38,9 @@ export function SongCard({
   trackUrl,
   trackTitle,
   artistName,
-  songs,
-  onGuess,
+  // songs,
+  // onGuess,
+  onOpenGuessModal,
   attempts,
   onGiveUp,
   status,
@@ -49,24 +51,35 @@ export function SongCard({
   const [progress, setProgress] = useState(0);
   const [clipDuration, setClipDuration] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
-  const [isGuessModalOpen, setIsGuessModalOpen] = useState(false);
+  // const [isGuessModalOpen, setIsGuessModalOpen] = useState(false);
   const playerRef = useRef<HTMLIFrameElement>(null);
   const progressIntervalRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const pausedTimeRef = useRef<number>(0);
   const widgetRef = useRef<SoundCloudWidget | null>(null);
   const [fullDuration, setFullDuration] = useState(0);
+  const [widgetError, setWidgetError] = useState(false);
 
   // Initialize the widget and load the audio
   useEffect(() => {
+    if (!window.SC || !window.SC.Widget) {
+      console.error("SoundCloud widget not initialized");
+      setWidgetError(true);
+      return;
+    }
+
     console.log("Track URL changed, resetting widget:", trackUrl);
     // Clean up any existing widget first
     if (widgetRef.current) {
-      widgetRef.current.pause();
-      widgetRef.current.unbind(window.SC.Widget.Events.READY);
-      widgetRef.current.unbind(window.SC.Widget.Events.PLAY);
-      widgetRef.current.unbind(window.SC.Widget.Events.PAUSE);
-      widgetRef.current.unbind(window.SC.Widget.Events.FINISH);
+      try {
+        widgetRef.current.pause();
+        widgetRef.current.unbind(window.SC.Widget.Events.READY);
+        widgetRef.current.unbind(window.SC.Widget.Events.PLAY);
+        widgetRef.current.unbind(window.SC.Widget.Events.PAUSE);
+        widgetRef.current.unbind(window.SC.Widget.Events.FINISH);
+      } catch (error) {
+        console.error("Error cleaning up widget:", error);
+      }
       widgetRef.current = null;
     }
 
@@ -77,65 +90,85 @@ export function SongCard({
     setProgress(0);
     setCurrentTime(0);
     setFullDuration(0);
+    setWidgetError(false);
 
     if (playerRef.current) {
-      console.log("Creating new widget");
-      // Create new widget
-      const widget = window.SC.Widget(playerRef.current) as unknown as SoundCloudWidget;
-      widgetRef.current = widget;
+      try {
+        console.log("Creating new widget");
+        // Create new widget
+        const widget = window.SC.Widget(playerRef.current) as unknown as SoundCloudWidget;
+        widgetRef.current = widget;
 
-      const bindEvents = () => {
-        // Bind play event
-        widget.bind(SC.Widget.Events.PLAY, () => {
-          console.log("Widget PLAY event fired, setting isPlaying to true");
-          setIsPlaying(true);
-          setIsLoading(false);
-        });
+        const bindEvents = () => {
+          try {
+            // Bind play event
+            widget.bind(SC.Widget.Events.PLAY, () => {
+              console.log("Widget PLAY event fired, setting isPlaying to true");
+              setIsPlaying(true);
+              setIsLoading(false);
+            });
 
-        // Bind pause event
-        widget.bind(SC.Widget.Events.PAUSE, () => {
-          console.log("Widget PAUSE event fired, setting isPlaying to false");
-          setIsPlaying(false);
-          setIsLoading(false);
-        });
+            // Bind pause event
+            widget.bind(SC.Widget.Events.PAUSE, () => {
+              console.log("Widget PAUSE event fired, setting isPlaying to false");
+              setIsPlaying(false);
+              setIsLoading(false);
+            });
 
-        // Bind finish event
-        widget.bind(SC.Widget.Events.FINISH, () => {
-          console.log("Widget FINISH event fired, setting isPlaying to false");
-          setIsPlaying(false);
-          setIsLoading(false);
-          setProgress(0);
-          setCurrentTime(0);
-        });
-      };
+            // Bind finish event
+            widget.bind(SC.Widget.Events.FINISH, () => {
+              console.log("Widget FINISH event fired, setting isPlaying to false");
+              setIsPlaying(false);
+              setIsLoading(false);
+              setProgress(0);
+              setCurrentTime(0);
+            });
+          } catch (error) {
+            console.error("Error binding widget events:", error);
+            setWidgetError(true);
+          }
+        };
 
-      // Bind ready event
-      widget.bind(SC.Widget.Events.READY, () => {
-        console.log("Widget READY event fired");
-        if (!widgetRef.current) return;
-
-        // Bind other events after widget is ready
-        bindEvents();
-
-        // Get the full song duration
-        widget.getCurrentSound((sound) => {
-          console.log("Got current sound duration:", sound.duration);
+        // Bind ready event
+        widget.bind(SC.Widget.Events.READY, () => {
+          console.log("Widget READY event fired");
           if (!widgetRef.current) return;
-          setFullDuration(sound.duration / 1000);
-          setIsReady(true);
-          setIsLoading(false);
+
+          try {
+            // Bind other events after widget is ready
+            bindEvents();
+
+            // Get the full song duration
+            widget.getCurrentSound((sound) => {
+              console.log("Got current sound duration:", sound.duration);
+              if (!widgetRef.current) return;
+              setFullDuration(sound.duration / 1000);
+              setIsReady(true);
+              setIsLoading(false);
+            });
+          } catch (error) {
+            console.error("Error in widget ready handler:", error);
+            setWidgetError(true);
+          }
         });
-      });
+      } catch (error) {
+        console.error("Error initializing widget:", error);
+        setWidgetError(true);
+      }
     }
 
     return () => {
       console.log("Cleanup effect running");
       if (widgetRef.current) {
-        widgetRef.current.pause();
-        widgetRef.current.unbind(SC.Widget.Events.READY);
-        widgetRef.current.unbind(SC.Widget.Events.PLAY);
-        widgetRef.current.unbind(SC.Widget.Events.PAUSE);
-        widgetRef.current.unbind(SC.Widget.Events.FINISH);
+        try {
+          widgetRef.current.pause();
+          widgetRef.current.unbind(SC.Widget.Events.READY);
+          widgetRef.current.unbind(SC.Widget.Events.PLAY);
+          widgetRef.current.unbind(SC.Widget.Events.PAUSE);
+          widgetRef.current.unbind(SC.Widget.Events.FINISH);
+        } catch (error) {
+          console.error("Error in cleanup:", error);
+        }
         widgetRef.current = null;
       }
       setIsPlaying(false);
@@ -334,11 +367,6 @@ export function SongCard({
     if (clipDuration < 5) {
       setClipDuration((prev) => prev + 1);
       toast(`Added 1s!`);
-
-      // Auto-play the clip with the new duration
-      if (isReady) {
-        handlePlayClip();
-      }
     } else {
       toast("Maximum duration reached!");
     }
@@ -363,7 +391,7 @@ export function SongCard({
           handleAddSecond();
         } else if (e.key === "/" || e.key === "g") {
           e.preventDefault();
-          setIsGuessModalOpen(true);
+          onOpenGuessModal();
         } else if (e.key === "s") {
           e.preventDefault();
           onGiveUp();
@@ -373,7 +401,26 @@ export function SongCard({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isPlaying, clipDuration, onGiveUp, handlePlay, handlePause]);
+  }, [isPlaying, clipDuration, onGiveUp, handlePlay, handlePause, onOpenGuessModal]);
+
+  useEffect(() => {
+    const handleResetTiming = () => {
+      setClipDuration(1);
+    };
+
+    window.addEventListener("resetTiming", handleResetTiming);
+    return () => {
+      window.removeEventListener("resetTiming", handleResetTiming);
+    };
+  }, []);
+
+  if (widgetError) {
+    return (
+      <div className="text-center p-4 text-red-500">
+        Error loading audio player. Please refresh the page and try again.
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-4xl p-8 border-2 border-blue-200 rounded-xl shadow-xl bg-white space-y-4">
@@ -467,7 +514,7 @@ export function SongCard({
             </Tooltip>
             <Tooltip content="Guess">
               <button
-                onClick={() => setIsGuessModalOpen(true)}
+                onClick={onOpenGuessModal}
                 className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-full transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1"
               >
                 <MusicNote className="w-6 h-6" />
@@ -523,14 +570,6 @@ export function SongCard({
           }
         }
       `}</style>
-
-      <GuessModal
-        isOpen={isGuessModalOpen}
-        onClose={() => setIsGuessModalOpen(false)}
-        songs={songs}
-        onGuess={onGuess}
-        attempts={attempts}
-      />
     </div>
   );
 }
