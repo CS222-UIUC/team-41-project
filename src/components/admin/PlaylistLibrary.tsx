@@ -91,10 +91,10 @@ export default function PlaylistLibrary() {
           </div>
           <div
             className={`transition-all duration-300 ease-in-out ${
-              expandedPlaylists.has(playlist.id) ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+              expandedPlaylists.has(playlist.id) ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"
             }`}
           >
-            <div className="p-4 space-y-4">
+            <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
               {playlistSongs[playlist.id]?.length === 0 ? (
                 <div className="text-gray-500 text-center">No songs in this playlist</div>
               ) : (

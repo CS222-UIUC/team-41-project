@@ -5,10 +5,17 @@ import Upload from "@/components/admin/Upload";
 import SongReview from "@/components/admin/SongReview";
 import SongLibrary from "@/components/admin/SongLibrary";
 import PlaylistLibrary from "@/components/admin/PlaylistLibrary";
+import CreatePlaylistModal from "@/components/playlist/CreatePlaylistModal";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<"upload" | "review" | "library" | "playlists">("upload");
   const [uploadType, setUploadType] = useState<"playlist" | "track">("playlist");
+  const [isCreatePlaylistModalOpen, setIsCreatePlaylistModalOpen] = useState(false);
+  const [playlistRefreshKey, setPlaylistRefreshKey] = useState(0);
+
+  const handlePlaylistCreated = () => {
+    setPlaylistRefreshKey((prev) => prev + 1);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -76,8 +83,24 @@ export default function AdminPage() {
       ) : activeTab === "library" ? (
         <SongLibrary />
       ) : (
-        <PlaylistLibrary />
+        <div className="space-y-4">
+          <div className="flex justify-end">
+            <button
+              onClick={() => setIsCreatePlaylistModalOpen(true)}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            >
+              Create Playlist
+            </button>
+          </div>
+          <PlaylistLibrary key={playlistRefreshKey} />
+        </div>
       )}
+
+      <CreatePlaylistModal
+        isOpen={isCreatePlaylistModalOpen}
+        onClose={() => setIsCreatePlaylistModalOpen(false)}
+        onPlaylistCreated={handlePlaylistCreated}
+      />
     </div>
   );
 }
