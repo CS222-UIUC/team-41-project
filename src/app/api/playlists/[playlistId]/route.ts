@@ -42,14 +42,14 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ pla
       return NextResponse.json({ error: "Missing playlistId or songId" }, { status: 400 });
     }
 
-    const song = await prisma.song.findUnique({ where: { id: songId } });
-    if (!song) {
-      return NextResponse.json({ error: "Song not found" }, { status: 404 });
-    }
-
     const playlist = await prisma.playlist.findUnique({ where: { id: playlistId } });
     if (!playlist) {
       return NextResponse.json({ error: "Playlist not found" }, { status: 404 });
+    }
+
+    const song = await prisma.song.findUnique({ where: { id: songId } });
+    if (!song) {
+      return NextResponse.json({ error: "Song not found" }, { status: 404 });
     }
 
     const existingEntry = await prisma.playlistSong.findUnique({
