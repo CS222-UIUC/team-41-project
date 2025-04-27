@@ -1,19 +1,21 @@
-'use client';
+"use client";
 
-import { useSearchParams } from 'next/navigation';
-import { signInAction } from '@/app/actions';
+import { useSearchParams } from "next/navigation";
+import { signInAction } from "@/app/actions";
 
 export default function SignInCard() {
   const searchParams = useSearchParams();
-  const status = searchParams.get('status');
-  const message = searchParams.get('message');
+  const status = searchParams.get("status");
+  const message = searchParams.get("message");
 
   return (
     <div className="object-center flex items-center justify-center columns-1 border-24 rounded-xl border-gray-100 m-4 w-100 h-130 bg-blue-25 mx-150 my-40 shadow-lg">
       <form action={signInAction}>
         <h1 className="text-2xl font-semibold m-8 text-center">Sign In:</h1>
 
-        <label htmlFor="email" className="m-4">Email:</label>
+        <label htmlFor="email" className="m-4">
+          Email:
+        </label>
         <br />
         <input
           type="email"
@@ -24,7 +26,9 @@ export default function SignInCard() {
         />
         <br />
 
-        <label htmlFor="password" className="m-4">Password:</label>
+        <label htmlFor="password" className="m-4">
+          Password:
+        </label>
         <br />
         <input
           type="password"
@@ -43,7 +47,7 @@ export default function SignInCard() {
         </button>
 
         {status && message && (
-          <p className={`m-4 text-sm ${status === 'error' ? 'text-red-500' : 'text-green-600'}`}>
+          <p className={`m-4 text-sm ${status === "error" ? "text-red-500" : "text-green-600"}`}>
             {decodeURIComponent(message)}
           </p>
         )}

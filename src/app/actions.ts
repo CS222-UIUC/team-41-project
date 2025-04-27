@@ -12,11 +12,7 @@ export const signUpAction = async (formData: FormData) => {
   const origin = (await headers()).get("origin");
 
   if (!email || !password) {
-    return encodedRedirect(
-      "error",
-      "/account/create",
-      "Email and password are required",
-    );
+    return encodedRedirect("error", "/account/create", "Email and password are required");
   }
 
   const { error, data } = await supabase.auth.signUp({
@@ -31,12 +27,12 @@ export const signUpAction = async (formData: FormData) => {
     console.error(error.code + " " + error.message);
     return encodedRedirect("error", "/account/create", error.message);
   } else {
-    const {} = await supabase.from('User').insert({ id: "test", uid: data.user?.id });
-    return encodedRedirect(
-      "success",
-      "/",
-      "Thanks for signing up! Please check your email for a verification link.",
-    );
+    const {} = await supabase.from("User").insert({
+      id: "test",
+      uid: data.user?.id,
+    });
+
+    return encodedRedirect("success", "/", "Thanks for signing up! Please check your email for a verification link.");
   }
 };
 
@@ -58,8 +54,7 @@ export const signInAction = async (formData: FormData) => {
 };
 
 export const signOutAction = async () => {
-    const supabase = await createClient();
-    await supabase.auth.signOut();
-    return redirect("/account");
-  };
-  
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  return redirect("/account");
+};
