@@ -1,5 +1,5 @@
 import SignInCard from "@/components/ui/auth/SignInCard";
-import { Suspense } from 'react';
+import { Suspense } from "react";
 
 export default function Login() {
   return (

@@ -1,5 +1,5 @@
 import AccountCard from "@/components/ui/auth/AccountCard";
-import { Suspense } from 'react';
+import { Suspense } from "react";
 
 export default function Create() {
   return (
