@@ -1,11 +1,22 @@
 import SignOutButton from "@/components/ui/auth/SignOutButton";
-import CheckSession from "@/components/ui/auth/CheckSession";
+// import { createClient } from "@/lib/supabase/server";
+// import { redirect } from "next/navigation";
 
-export default function Dashboard() {
+export default async function Dashboard() {
+  // const supabase = await createClient();
+
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
+
+  // if (!user) {
+  //   return redirect("/account");
+  // }
+
   return (
-    <CheckSession>
-      <h1>Dashboard page</h1>
+    <>
+      <h1>Protected Dashboard page</h1>
       <SignOutButton />
-    </CheckSession>
+    </>
   );
 }
