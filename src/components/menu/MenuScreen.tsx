@@ -19,16 +19,18 @@ export default function MenuScreen() {
       case "How to Play":
         return (
           <div className="space-y-4">
-            
             <h3 className="text-xl font-bold mt-6">Game Objective</h3>
             <p>Pick a playlist and try to guess the song through hearing as little of the song as possible.</p>
             <p>You can choose to play with a friend or by yourself.</p>
             <p>The default start time is 1 second, but you can change it in the settings.</p>
-            <p>You can increase the audio playback time for each song by clicking the "+" button in the Playback up to a maximum of 5 seconds.</p>
-            <p>Make as many guesses as you'd like, but remember that your points decrease with each attempt!</p>
+            <p>
+              You can increase the audio playback time for each song by clicking the + button in the Playback up to a
+              maximum of 5 seconds.
+            </p>
+            <p>Make as many guesses as you like, but remember that your points decrease with each attempt!</p>
           </div>
         );
-      
+
       case "Settings":
         return (
           <div className="space-y-6">
@@ -43,7 +45,7 @@ export default function MenuScreen() {
                 <input type="range" min="1" max="5" defaultValue="1" className="w-full" />
               </div>
             </div>
-            
+
             <div>
               <h3 className="text-lg font-bold mb-2">Graphics</h3>
               <div className="flex items-center space-x-2">
@@ -55,15 +57,14 @@ export default function MenuScreen() {
                 </select>
               </div>
             </div>
-            
           </div>
         );
-      
+
       case "Credits":
         return (
           <div className="space-y-4">
             <h3 className="text-xl font-bold">Development Team</h3>
-            
+
             <div className="mt-6">
               <p className="text-lg">Team 41 - CS222 @ UIUC</p>
               <br></br>
@@ -75,7 +76,7 @@ export default function MenuScreen() {
             </div>
           </div>
         );
-      
+
       default:
         return <div>Select an option from the menu</div>;
     }
