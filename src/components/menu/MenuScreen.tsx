@@ -7,17 +7,24 @@ import StartGameModal from "@/components/menu/StartGameModal";
 import ScrollingBackground from "@/components/background/ScrollingBackground";
 import { Canvas } from "@react-three/fiber";
 import FlatRecord from "@/components/3d/FlatRecord";
+import useGameStore from "@/stores/gameStore";
 
 export default function MenuScreen() {
   const [selectedOption, setSelectedOption] = useState<string>("Start Game");
   const [showSidePanel, setShowSidePanel] = useState<boolean>(false);
   const [showStartGameModal, setShowStartGameModal] = useState<boolean>(false);
-  const menuOptions = ["Start Game", "How to Play", "Settings", "Credits"];
+  const setScreen = useGameStore((state) => state.setScreen);
+  const menuOptions = ["Start Game", "Leaderboard", "How to Play", "Settings", "Credits"];
 
   const handleConfirm = (option: string) => {
     setSelectedOption(option);
-    setShowSidePanel(option !== "Start Game");
-    setShowStartGameModal(option === "Start Game");
+    if (option === "Start Game") {
+      setShowStartGameModal(true);
+    } else if (option === "Leaderboard") {
+      setScreen("leaderboard");
+    } else {
+      setShowSidePanel(true);
+    }
   };
 
   return (

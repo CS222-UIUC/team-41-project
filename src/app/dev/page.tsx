@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { SongCard } from "@/components/game/SongCard";
 import { Song } from "@prisma/client";
 import Dropdown from "@/components/ui/Dropdown";
@@ -15,30 +15,10 @@ export default function DevPage() {
   const [gameOver, setGameOver] = useState(false);
   const [givenUp, setGivenUp] = useState(false);
   const [attempts, setAttempts] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
   const [allSongs, setAllSongs] = useState<Song[]>([]);
   const [usedSongIds, setUsedSongIds] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    const fetchSongs = async () => {
-      try {
-        const songs = await getAllSongs();
-        setAllSongs(songs);
-        if (songs.length > 0) {
-          selectRandomTrack();
-        }
-        setIsLoading(false);
-      } catch (err) {
-        console.error("Failed to load songs:", err);
-        toast.error("Failed to load songs");
-        setIsLoading(false);
-      }
-    };
-
-    fetchSongs();
-  }, []);
-
-  const selectRandomTrack = () => {
+  const selectRandomTrack = useCallback(() => {
     const availableSongs = allSongs.filter((song) => !usedSongIds.has(song.id));
     if (availableSongs.length === 0) {
       setUsedSongIds(new Set()); // Reset if all songs have been used
@@ -53,7 +33,22 @@ export default function DevPage() {
     setGameOver(false);
     setGivenUp(false);
     setAttempts(0);
-  };
+  }, [allSongs, usedSongIds]);
+
+  useEffect(() => {
+    const fetchSongs = async () => {
+      try {
+        const songs = await getAllSongs();
+        setAllSongs(songs);
+        selectRandomTrack();
+      } catch (err) {
+        console.error("Failed to load songs:", err);
+        toast.error("Failed to load songs");
+      }
+    };
+
+    fetchSongs();
+  }, [selectRandomTrack]);
 
   const handleTrackSelect = (option: string) => {
     const selectedTrack = allSongs.find((track) => track.title === option);
@@ -112,10 +107,6 @@ export default function DevPage() {
     selectRandomTrack();
   };
 
-  if (isLoading) {
-    return <div className="text-center p-4">Loading game...</div>;
-  }
-
   if (allSongs.length === 0) {
     return <div className="text-center p-4">No songs available</div>;
   }
@@ -135,6 +126,7 @@ export default function DevPage() {
               artistName={secretTrack.artist}
               songs={allSongs}
               onGuess={() => {}}
+              onOpenGuessModal={() => {}}
               attempts={attempts}
               onGiveUp={handleGiveUp}
               status={gameOver ? "correct" : "guessing"}

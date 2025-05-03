@@ -7,6 +7,7 @@ import { usePusher } from "@/hooks/usePusher";
 import { SongCard } from "./SongCard";
 import { Playlist, Song } from "@prisma/client";
 import { getAllSongs } from "@/services/songService";
+import GuessModal from "./GuessModal";
 
 interface PlaylistWithSongs extends Playlist {
   songs: Song[];
@@ -15,9 +16,11 @@ interface PlaylistWithSongs extends Playlist {
 export default function GameScreen() {
   const session = useGameStore((state) => state.session);
   const setScreen = useGameStore((state) => state.setScreen);
+  const leaveGame = useGameStore((state) => state.leaveGame);
+  const [isLeaving, setIsLeaving] = useState(false);
 
   const [currentTrack, setCurrentTrack] = useState<Song | null>(null);
-  const [userGuess, setUserGuess] = useState<Song | null>(null);
+  const [isGuessModalOpen, setIsGuessModalOpen] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [givenUp, setGivenUp] = useState(false);
@@ -58,6 +61,24 @@ export default function GameScreen() {
     }
   }, [isClient, session?.playlist]);
 
+  const handleLeaveGame = async () => {
+    if (!session || isLeaving) return;
+
+    setIsLeaving(true);
+    try {
+      // Add a small delay to ensure any ongoing widget operations complete
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await leaveGame(session.id, session.players[0].id);
+      toast.success("Left the game");
+      setScreen("menu");
+    } catch (error) {
+      console.error("Error leaving game:", error);
+      toast.error("Failed to leave game");
+    } finally {
+      setIsLeaving(false);
+    }
+  };
+
   const selectRandomTrack = () => {
     if (!session?.playlist) return;
 
@@ -80,60 +101,61 @@ export default function GameScreen() {
     const randomTrack = availableSongs[randomIndex];
     setCurrentTrack(randomTrack as Song);
     setUsedSongIds((prev) => new Set(prev).add(randomTrack.id));
-    setUserGuess(null);
     setIsCorrect(null);
     setGameOver(false);
     setGivenUp(false);
     setAttempts(0);
+
+    // Reset timing to 1s for the next song
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("resetTiming"));
+    }
   };
 
   const handleGuess = (song: Song) => {
-    setUserGuess(song as Song);
-    checkGuess();
-  };
+    setIsGuessModalOpen(false);
+    // Immediately check the guess
+    const correct = song.id === currentTrack?.id;
+    setIsCorrect(correct);
+    setAttempts((prev) => prev + 1);
 
-  const checkGuess = () => {
-    if (userGuess && currentTrack) {
-      const correct = userGuess.id === currentTrack.id;
-      setIsCorrect(correct);
-      setAttempts((prev) => prev + 1);
+    // Update player score for both correct and incorrect guesses
+    if (session) {
+      fetch(`/api/sessions/guess`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          playerId: session.players[0].id,
+          trackId: currentTrack?.id,
+          correct: correct,
+          sessionCode: session.code,
+        }),
+      });
+    }
 
-      if (correct) {
-        setGameOver(true);
-        toast.success("Correct! 🎉", {
-          duration: 2000,
-          position: "top-center",
-          style: {
-            background: "#4CAF50",
-            color: "white",
-            fontSize: "1.1rem",
-          },
-        });
-        // Update player score
-        if (session) {
-          fetch(`/api/sessions/${session.id}/guess`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              correct: true,
-              trackId: currentTrack.id,
-            }),
-          });
-        }
-      } else {
-        toast.error("Not quite! Try again!", {
-          duration: 2000,
-          position: "top-center",
-          style: {
-            background: "#f44336",
-            color: "white",
-            fontSize: "1.1rem",
-          },
-        });
-        setUserGuess(null);
-      }
+    if (correct) {
+      setGameOver(true);
+      toast.success("Correct! 🎉", {
+        duration: 2000,
+        position: "top-center",
+        style: {
+          background: "#4CAF50",
+          color: "white",
+          fontSize: "1.1rem",
+        },
+      });
+    } else {
+      toast.error("Not quite! Try again!", {
+        duration: 2000,
+        position: "top-center",
+        style: {
+          background: "#f44336",
+          color: "white",
+          fontSize: "1.1rem",
+        },
+      });
     }
   };
 
@@ -171,6 +193,15 @@ export default function GameScreen() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <div className="absolute top-4 right-4">
+        <button
+          onClick={handleLeaveGame}
+          disabled={isLeaving}
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLeaving ? "Leaving..." : "Leave Game"}
+        </button>
+      </div>
       <main className="flex-1 flex flex-col p-4">
         {currentTrack && (
           <div className="flex-1 flex items-center justify-center mb-8">
@@ -180,15 +211,21 @@ export default function GameScreen() {
               artistName={currentTrack.artist || "Unknown Artist"}
               songs={allSongs}
               onGuess={handleGuess}
+              onOpenGuessModal={() => setIsGuessModalOpen(true)}
               onGiveUp={handleNextSong}
               attempts={attempts}
-              status={
-                !gameOver && isCorrect === null && !givenUp ? "guessing" : isCorrect === true ? "correct" : "incorrect"
-              }
+              status={!gameOver && !givenUp ? "guessing" : isCorrect === true ? "correct" : "incorrect"}
             />
           </div>
         )}
       </main>
+      <GuessModal
+        isOpen={isGuessModalOpen}
+        onClose={() => setIsGuessModalOpen(false)}
+        songs={allSongs}
+        onGuess={handleGuess}
+        attempts={attempts}
+      />
     </div>
   );
 }
