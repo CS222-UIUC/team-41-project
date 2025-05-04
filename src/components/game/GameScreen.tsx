@@ -209,8 +209,6 @@ export default function GameScreen() {
               trackUrl={currentTrack.permalinkUrl || ""}
               trackTitle={currentTrack.title}
               artistName={currentTrack.artist || "Unknown Artist"}
-              songs={allSongs}
-              onGuess={handleGuess}
               onOpenGuessModal={() => setIsGuessModalOpen(true)}
               onGiveUp={handleNextSong}
               attempts={attempts}
