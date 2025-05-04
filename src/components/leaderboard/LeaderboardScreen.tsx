@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import useGameStore from "@/stores/gameStore";
 import { Button } from "@/components/ui/Button";
-import { ArrowLeft, Trophy, Clock, Target } from "lucide-react";
+import { ArrowLeft, Trophy, Clock, Target } from "@phosphor-icons/react";
 
 interface LeaderboardPlayer {
   nickname: string;

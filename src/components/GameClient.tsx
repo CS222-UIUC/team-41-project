@@ -7,7 +7,7 @@ import GameScreen from "@/components/game/GameScreen";
 import LeaderboardScreen from "@/components/leaderboard/LeaderboardScreen";
 import useGameStore from "@/stores/gameStore";
 
-const GameClient: React.FC = () => {
+export default function GameClient() {
   const currentScreen = useGameStore((state) => state.currentScreen);
   const setScreen = useGameStore((state) => state.setScreen);
 
@@ -24,6 +24,4 @@ const GameClient: React.FC = () => {
       {currentScreen === "leaderboard" && <LeaderboardScreen />}
     </div>
   );
-};
-
-export default GameClient;
+}

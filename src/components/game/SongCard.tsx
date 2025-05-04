@@ -4,8 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { Play, Pause, Plus, MusicNote, SkipForward, SpinnerGap } from "@phosphor-icons/react";
 import RippleText from "../effects/RippleText";
 import ProgressBar from "../player/ProgressBar";
-// import GuessModal from "./GuessModal";
-import { Song } from "@prisma/client";
 import { toast } from "react-hot-toast";
 import { Tooltip } from "../ui/Tooltip";
 import { SoundCloudWidget } from "@/types/soundcloud";
@@ -26,8 +24,6 @@ interface SongCardProps {
   trackUrl: string;
   trackTitle: string;
   artistName: string;
-  songs: Song[];
-  onGuess: (song: Song) => void;
   onOpenGuessModal: () => void;
   attempts: number;
   onGiveUp: () => void;
@@ -38,8 +34,6 @@ export function SongCard({
   trackUrl,
   trackTitle,
   artistName,
-  // songs,
-  // onGuess,
   onOpenGuessModal,
   attempts,
   onGiveUp,
@@ -51,7 +45,6 @@ export function SongCard({
   const [progress, setProgress] = useState(0);
   const [clipDuration, setClipDuration] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
-  // const [isGuessModalOpen, setIsGuessModalOpen] = useState(false);
   const playerRef = useRef<HTMLIFrameElement>(null);
   const progressIntervalRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
@@ -388,10 +381,10 @@ export function SongCard({
           }
         } else if (e.key === "ArrowRight" && !isPlaying && clipDuration < 5) {
           e.preventDefault();
-          handleAddSecond();
+          if (status === "guessing") handleAddSecond();
         } else if (e.key === "/" || e.key === "g") {
           e.preventDefault();
-          onOpenGuessModal();
+          if (status === "guessing") onOpenGuessModal();
         } else if (e.key === "s") {
           e.preventDefault();
           onGiveUp();
@@ -492,7 +485,7 @@ export function SongCard({
               <button
                 onClick={handlePlay}
                 disabled={isLoading}
-                className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-md disabled:hover:bg-blue-600"
+                className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-md disabled:hover:bg-blue-600 outline-none"
               >
                 {isLoading ? (
                   <SpinnerGap className="w-6 h-6 animate-spin" />
@@ -506,8 +499,8 @@ export function SongCard({
             <Tooltip content="Add 1s">
               <button
                 onClick={handleAddSecond}
-                disabled={isPlaying || clipDuration >= 5}
-                className="p-2 bg-pink-600 hover:bg-pink-700 text-white rounded-full transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-md disabled:hover:bg-pink-600"
+                disabled={isPlaying || clipDuration >= 5 || status !== "guessing"}
+                className="p-2 bg-pink-600 hover:bg-pink-700 text-white rounded-full transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-md disabled:hover:bg-pink-600 outline-none"
               >
                 <Plus className="w-6 h-6" />
               </button>
@@ -515,7 +508,8 @@ export function SongCard({
             <Tooltip content="Guess">
               <button
                 onClick={onOpenGuessModal}
-                className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-full transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1"
+                disabled={status !== "guessing"}
+                className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-full transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-md disabled:hover:bg-purple-600 outline-none"
               >
                 <MusicNote className="w-6 h-6" />
               </button>
@@ -523,7 +517,7 @@ export function SongCard({
             <Tooltip content={status === "guessing" ? "Skip" : "Next Song"}>
               <button
                 onClick={onGiveUp}
-                className="p-2 bg-orange-600 hover:bg-orange-700 text-white rounded-full transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1"
+                className="p-2 bg-orange-600 hover:bg-orange-700 text-white rounded-full transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-1 outline-none"
               >
                 <SkipForward className="w-6 h-6" />
               </button>

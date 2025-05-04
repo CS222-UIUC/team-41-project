@@ -124,8 +124,6 @@ export default function DevPage() {
               trackUrl={secretTrack.permalinkUrl || ""}
               trackTitle={gameOver && (isCorrect || givenUp) ? secretTrack.title : "Mystery Song"}
               artistName={secretTrack.artist}
-              songs={allSongs}
-              onGuess={() => {}}
               onOpenGuessModal={() => {}}
               attempts={attempts}
               onGiveUp={handleGiveUp}
