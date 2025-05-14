@@ -9,9 +9,9 @@
 ## Features
 
 ### Core Features
-1. **Guess the Song**: Players listen to short audio clips and guess the song title.
+1. **Guess the Song**: Players listen to short audio clips and guess the song title. They are awarded more points for guessing faster and the first person to guess correctly wins the points.
 2. **Leaderboard**: Tracks player performance, including total points, average time, and games won.
-3. **Custom Playlists**: Players can create and share playlists for game sessions.
+3. **Playlists**: Players have a large selection of songs and playlists created by admin.
 4. **Interactive 3D Visuals**: Powered by Three.js, the game includes dynamic 3D elements like animated titles and music notes.
 5. **Game Modes**: Players can select genres, artists, or playlists to customize their game experience.
 6. **Statistics**: Players can view past game statistics and achievements.
@@ -256,6 +256,15 @@ Add unit tests using Jest and React Testing Library to ensure the functionality 
 3. **Achievements**: Add badges and rewards for milestones.
 4. **Advanced Analytics**: Provide detailed player statistics.
 5. **User Authentication**: Provide several options for account management. 
+
+---
+
+## Potential Competition
+
+1. **SongQuiz.io**: Awards points to all players that guess correctly, plays full snippet every round.
+2. **Songlio**: Each round, one player picks a song for the others to guess.
+3. **Heardle**: Singleplayer only, one second played at first with seconds added if player needs.
+4. **Youtube**: Videos exist in this genre, don't offer scoring and asynchronous playing.
 
 ---
 
