@@ -270,10 +270,10 @@ Add unit tests using Jest and React Testing Library to ensure the functionality 
 ## Authors
 
 **Team 41**  
-- Kaavya Mahajan (kaavyam2)  
-- Zia Lu (zixuan43)  
-- Sophie Lin (sophiel4)  
-- Sriram Koritala (sriramk3)
+- Kaavya Mahajan (kaavyam2): UI, External APIs
+- Zia Lu (zixuan43): Web Server, Database
+- Sophie Lin (sophiel4): UI, External APIs
+- Sriram Koritala (sriramk3): Web Server, Database
 
 ---
 
