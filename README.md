@@ -264,7 +264,6 @@ Add unit tests using Jest and React Testing Library to ensure the functionality 
 1. **SongQuiz.io**: Awards points to all players that guess correctly, plays full snippet every round.
 2. **Songlio**: Each round, one player picks a song for the others to guess.
 3. **Heardle**: Singleplayer only, one second played at first with seconds added if player needs.
-4. **Youtube**: Videos exist in this genre, don't offer scoring and asynchronous playing.
 
 ---
 
